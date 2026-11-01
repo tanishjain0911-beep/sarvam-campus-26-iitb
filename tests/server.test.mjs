@@ -99,7 +99,7 @@ test("translation and tts payload correctness", async () => {
     assert.equal(translateBody.source_language_code, "en-IN");
     assert.equal(translateBody.target_language_code, "hi-IN");
     assert.equal(translateBody.model, "mayura:v1");
-    assert.equal(translateBody.mode, "modern-colloquial");
+    assert.equal(translateBody.mode, "formal");
     assert.equal(translateBody.numerals_format, "international");
     assert.equal(calls[0].init.headers["api-subscription-key"], "test-key");
 

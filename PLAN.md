@@ -27,7 +27,7 @@ Body limit 16KB; accept application/json only. Limit input and translated TTS te
 
 ## Sarvam integration verified with MCP builder tools
 Both APIs bill by character; exact rates depend on the account. Checked pricing, snippets, and request validation before coding.
-POST https://api.sarvam.ai/translate with api-subscription-key header and JSON {input,source_language_code,target_language_code,model:"mayura:v1",mode:"modern-colloquial",numerals_format:"international"}. Read translated_text.
+POST https://api.sarvam.ai/translate with api-subscription-key header and JSON {input,source_language_code,target_language_code,model:"mayura:v1",mode:"formal",numerals_format:"international"}. Read translated_text. Formal mode was selected after the first live test returned code-mixed output in modern-colloquial mode.
 POST https://api.sarvam.ai/text-to-speech with same header and JSON {text,target_language_code,speaker:"shubh",model:"bulbul:v3",speech_sample_rate:24000,enable_preprocessing:true}. Read audios[0] base64 WAV. Both request shapes passed sarvam_code_validate_request. Do not guess alternatives. App reads SARVAM_API_KEY only; a local manager launcher may load ~/.sarvam/credentials privately into that environment.
 
 ## Execution and roadmap

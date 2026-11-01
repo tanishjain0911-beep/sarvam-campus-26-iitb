@@ -23,7 +23,7 @@ if (-not (Test-Path -LiteralPath $taskPath)) {
 # Both tiers currently use the free model independently tested in this environment.
 # Do not invent Hyde aliases or enable untested heavy variants.
 $workerModel=if ($env:WORKER_MODEL) {$env:WORKER_MODEL} else {'opencode/beam-free'}
-$permissionConfig=@{permission=@{edit='allow';bash=@{'*'='deny';'node --test*'='allow';'node --check*'='allow';'git status*'='allow';'git diff*'='allow';'Get-Content *'='allow';'Get-ChildItem *'='allow';'Test-Path *'='allow'}}} | ConvertTo-Json -Depth 5 -Compress
+$permissionConfig=@{permission=@{edit='allow';bash=[ordered]@{'*'='deny';'node --test*'='allow';'node --check*'='allow';'git status*'='allow';'git diff*'='allow';'Get-Content *'='allow';'Get-ChildItem *'='allow';'Test-Path *'='allow'}}} | ConvertTo-Json -Depth 5 -Compress
 $env:OPENCODE_CONFIG_CONTENT=$permissionConfig
 $taskPrompt="Read AGENTS.md and PLAN.md, then carry out only briefs/$Id.md. You are in a worktree on branch $taskBranch. Do not commit; the manager reviews and commits. End with files changed, how verified, and unfinished items. Do not use live external APIs."
 $logPath=Join-Path $repoRoot "logs\$Id.log"

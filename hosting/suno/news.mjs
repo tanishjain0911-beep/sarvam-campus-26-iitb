@@ -1,10 +1,16 @@
 import { createHash } from 'node:crypto';
 
+const publisher = (name, hosts, url) => Object.freeze({name,hosts,url});
+const bbc = suffix => publisher('BBC News',['bbc.com','www.bbc.com','bbc.co.uk','www.bbc.co.uk'],'https://feeds.bbci.co.uk/news/'+suffix+'/rss.xml');
+const express = section => publisher('The Indian Express',['indianexpress.com','www.indianexpress.com'],'https://indianexpress.com/section/'+section+'/feed/');
+const hindu = section => publisher('The Hindu',['thehindu.com','www.thehindu.com'],'https://www.thehindu.com/'+section+'/feeder/default.rss');
+const ht = publisher('Hindustan Times',['hindustantimes.com','www.hindustantimes.com'],'https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml');
 export const NEWS_FEEDS = Object.freeze({
-  world: 'https://feeds.bbci.co.uk/news/world/rss.xml',
-  technology: 'https://feeds.bbci.co.uk/news/technology/rss.xml',
-  science: 'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml',
-  business: 'https://feeds.bbci.co.uk/news/business/rss.xml'
+  india: [express('india'),hindu('news/national'),ht],
+  world: [express('world'),hindu('news/international'),bbc('world')],
+  technology: [express('technology'),hindu('sci-tech/technology'),bbc('technology')],
+  science: [express('technology/science'),hindu('sci-tech/science'),bbc('science_and_environment')],
+  business: [express('business'),hindu('business'),bbc('business')]
 });
 
 const caches = new WeakMap();
@@ -36,7 +42,7 @@ function field(xml, tag) {
   return plainText(xml.match(new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, 'i'))?.[1] ?? '');
 }
 
-export function parseNewsFeed(xml) {
+export function parseNewsFeed(xml, source = NEWS_FEEDS.world[2]) {
   if (typeof xml !== 'string' || xml.length > 2_000_000 || !/<rss\b/i.test(xml)) {
     throw new NewsError('The news source returned an unreadable feed.');
   }
@@ -48,7 +54,7 @@ export function parseNewsFeed(xml) {
     let url;
     try {
       url = new URL(link);
-      if (url.protocol !== 'https:' || !['bbc.com', 'www.bbc.com', 'bbc.co.uk', 'www.bbc.co.uk'].includes(url.hostname)) continue;
+      if (url.protocol !== 'https:' || !source.hosts.includes(url.hostname)) continue;
     } catch { continue; }
     if (!title || seen.has(url.href)) continue;
     seen.add(url.href);
@@ -58,7 +64,7 @@ export function parseNewsFeed(xml) {
       title: [...title].slice(0, 300).join(''),
       description: [...field(match[1], 'description')].slice(0, 500).join(''),
       url: url.href,
-      source: 'BBC News',
+      source: source.name,
       publishedAt: Number.isFinite(date) ? new Date(date).toISOString() : null
     });
     if (items.length === 5) break;
@@ -67,40 +73,34 @@ export function parseNewsFeed(xml) {
   return items;
 }
 
-export async function getNews({ topic = 'world', fetchImpl = fetch, now = Date.now, timeoutMs = TIMEOUT_MS } = {}) {
-  if (!Object.hasOwn(NEWS_FEEDS, topic)) throw new NewsError('Choose world, technology, science or business.', 'BAD_TOPIC');
-  const timestamp = typeof now === 'function' ? now() : now;
-  if (!Number.isFinite(timestamp)) throw new NewsError('News clock is unavailable.');
-  let cache = caches.get(fetchImpl);
-  if (!cache) { cache = new Map(); caches.set(fetchImpl, cache); }
-  const prior = cache.get(topic);
-  if (prior && timestamp >= prior.time && timestamp - prior.time < TTL_MS) {
-    return structuredClone(prior.result);
+async function fetchSource(source, fetchImpl, timeoutMs) {
+  const controller=new AbortController();let timer;
+  const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(new NewsError('The news source took too long to respond. Please try again.','NEWS_TIMEOUT'));},timeoutMs);});
+  try{return await Promise.race([(async()=>{
+    const response=await fetchImpl(source.url,{signal:controller.signal,headers:{Accept:'application/rss+xml, application/xml, text/xml'},redirect:'manual'});
+    if(!response?.ok)throw new NewsError('The news source is temporarily unavailable. Please try again.');
+    return parseNewsFeed(await response.text(),source);
+  })(),deadline]);}catch(error){if(error instanceof NewsError)throw error;throw new NewsError('Could not reach the news source. Please try again.');}
+  finally{clearTimeout(timer);}
+}
+
+export async function getNews({topic='world',fetchImpl=fetch,now=Date.now,timeoutMs=TIMEOUT_MS}={}) {
+  if(!Object.hasOwn(NEWS_FEEDS,topic))throw new NewsError('Choose India, world, technology, science or business.','BAD_TOPIC');
+  const timestamp=typeof now==='function'?now():now;
+  if(!Number.isFinite(timestamp))throw new NewsError('News clock is unavailable.');
+  let cache=caches.get(fetchImpl);if(!cache){cache=new Map();caches.set(fetchImpl,cache);}
+  const prior=cache.get(topic);
+  if(prior&&timestamp>=prior.time&&timestamp-prior.time<TTL_MS)return structuredClone(prior.result);
+  const sources=NEWS_FEEDS[topic];
+  const results=await Promise.allSettled(sources.map(source=>fetchSource(source,fetchImpl,timeoutMs)));
+  const lists=results.filter(result=>result.status==='fulfilled').map(result=>result.value);
+  if(!lists.length)throw results[0].reason;
+  // Round-robin preserves publisher diversity instead of letting a busy feed fill every slot.
+  const items=[],seen=new Set();
+  for(let index=0;index<5&&items.length<5;index++)for(const list of lists){
+    const item=list[index];if(!item||seen.has(item.url))continue;
+    seen.add(item.url);items.push(item);if(items.length===5)break;
   }
-  const controller = new AbortController();
-  let timer;
-  const deadline = new Promise((_, reject) => {
-    timer = setTimeout(() => {
-      controller.abort();
-      reject(new NewsError('The news source took too long to respond. Please try again.', 'NEWS_TIMEOUT'));
-    }, timeoutMs);
-  });
-  try {
-    const result = await Promise.race([(async () => {
-      const response = await fetchImpl(NEWS_FEEDS[topic], {
-        signal: controller.signal,
-        headers: { Accept: 'application/rss+xml, application/xml, text/xml' },
-        // Workers supports manual/follow; a 3xx response fails the ok check below.
-        redirect: 'manual'
-      });
-      if (!response?.ok) throw new NewsError('The news source is temporarily unavailable. Please try again.');
-      const items = parseNewsFeed(await response.text());
-      return { items, fetchedAt: new Date(timestamp).toISOString(), topic };
-    })(), deadline]);
-    cache.set(topic, { time: timestamp, result });
-    return structuredClone(result);
-  } catch (error) {
-    if (error instanceof NewsError) throw error;
-    throw new NewsError('Could not reach the news source. Check your connection and try again.');
-  } finally { clearTimeout(timer); }
+  const result={items,fetchedAt:new Date(timestamp).toISOString(),topic,sources:lists.map(list=>list[0].source),unavailableSources:results.flatMap((r,i)=>r.status==='rejected'?[sources[i].name]:[])};
+  cache.set(topic,{time:timestamp,result});return structuredClone(result);
 }

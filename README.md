@@ -16,7 +16,7 @@ Suno turns current headlines and everyday text into spoken audio. Choose a topic
 
 | Mode | Input | Result |
 | --- | --- | --- |
-| **News Mirror** | Choose World, Technology, Science or Business | Up to five current BBC RSS headlines with source links and publication times |
+| **News Mirror** | Choose India, World, Technology, Science or Business | Up to five mixed-publisher RSS headlines, prioritizing Indian sources, with original links and publication times |
 | **Listen in my language** | Select a headline and listening language | Translated text and playable WAV narration |
 | **Own-voice beta** | Prepare a headline, supply your WAV and confirm consent | An AI voice recreation reading the prepared text |
 | **Text Reader** | Paste a notice, study paragraph or message | Readable text and standard-voice audio, with playback speed and download controls |
@@ -79,8 +79,10 @@ flowchart LR
 | Translation | Sarvam `mayura:v1`, formal mode |
 | Standard speech | Sarvam `bulbul:v3`, `shubh`, 24 kHz WAV |
 | Voice recreation | Sarvam `/voices/clone`, consent-gated multipart WAV |
-| News | Fixed BBC RSS topic feeds; 60-second cache and visible-page polling |
+| News | The Indian Express, The Hindu, Hindustan Times and BBC RSS; 60-second cache and visible-page polling |
 | Tests | Node.js built-in test runner with mocked provider responses |
+
+See [news sources and feed behavior](docs/NEWS-SOURCES.md) for publisher coverage and resilience.
 
 ## Privacy and boundaries
 
@@ -102,7 +104,7 @@ node --check public/news.js
 node --check public/voice-recorder.js
 ```
 
-The local Node application has **39 tests**, and the hosted adapter adds **20 tests** (59 total when run from the repository root). The tests cover input validation, consent, WAV validation, feeds, routes, provider failures and timeouts. Tests use mocks and do not spend credits. A real news-to-Hindi standard narration was decoded in the browser; this does not establish own-voice similarity or quality across every language.
+The local Node application has **43 tests**, and the hosted adapter adds **24 tests** (67 total when run from the repository root). The tests cover input validation, consent, WAV validation, feeds, routes, provider failures and timeouts. Tests use mocks and do not spend credits. A real news-to-Hindi standard narration was decoded in the browser; this does not establish own-voice similarity or quality across every language.
 
 This hackathon prototype is deployed publicly on Sites hosting. The Sarvam key is configured as a hosted runtime secret. Production hardening still needs rate limiting, abuse prevention and broader testing. See [deployment notes](docs/DEPLOYMENT.md).
 

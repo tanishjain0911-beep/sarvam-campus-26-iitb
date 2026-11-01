@@ -46,3 +46,10 @@ Browser file-download verification was blocked because download permission was d
 Only one English-to-Hindi sentence was tested live in initial mode. Other offered languages, formal-mode output quality, end-to-end browser download, screen-reader behavior, a formal accessibility audit, and another physical device are not verified. Generation requires internet. The service has not been publicly hosted. Production needs rate limiting, abuse prevention and broader testing.
 
 GitHub push and deployment require participant approval. No secrets, audio or local logs belong in the repository.
+
+## Indian news edition update
+
+- Added India headlines plus publisher-diverse mixes for existing topics.
+- Configured official feeds from The Indian Express, The Hindu and Hindustan Times alongside BBC.
+- Live local feed checks returned all three Indian publishers. In the public hosting environment, India headlines from The Hindu and Hindustan Times were displayed; The Indian Express was unavailable at that check. The page reports partial source availability and continues with healthy feeds.
+- Production version 3 deployed successfully. Automated suite: 67 tests pass, including publisher attribution, round-robin mixing, partial failure and timeout recovery.

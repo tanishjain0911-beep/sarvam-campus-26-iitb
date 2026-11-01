@@ -33,7 +33,7 @@ test('news route returns sourced headlines and timestamps from injected RSS', as
   const response = await fetch(`${base}/api/news?topic=world`);
   assert.equal(response.status, 200);
   const data = await response.json();
-  assert.equal(upstreamCalls, 1);
+  assert.equal(upstreamCalls, 3);
   assert.equal(data.items[0].title, 'Research & discovery');
   assert.equal(data.items[0].source, 'BBC News');
   assert.equal(data.items[0].publishedAt, '2026-11-01T08:00:00.000Z');

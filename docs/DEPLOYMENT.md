@@ -10,7 +10,7 @@
 
 - Access: **public**. Anyone with the website link can visit without signing in.
 - Hosting: Sites / Cloudflare Workers, retaining the supplied Vinext build integration.
-- Current hosted source revision: `279f3e13c2f267af8b870f5b4f503062f9ec7b6f` in the Site source repository (version 2).
+- Current hosted source revision: `2859ccde7bd953c8e23124ac4111be3822d02de6` in the Site source repository (version 3).
 - Runtime secret: `SARVAM_API_KEY` is configured in the hosting secret store. It is not in GitHub or the browser bundle.
 - `hosting/` includes the complete tracked hosting source, build scripts, lockfile, manifest, interface assets and adapter tests. The root project remains a dependency-free Node application for local use.
 
@@ -34,8 +34,8 @@ Keep the root and hosted shared modules consistent. For future publication use t
 
 ## Verification and limits
 
-- Root `npm test`: **59 tests pass** (39 local-app tests plus 20 hosting/shared-module tests).
-- Production build passed; hosting confirmed version 2 deployment succeeded.
+- Root `npm test`: **67 tests pass** (43 local-app tests plus 24 hosting/shared-module tests).
+- Production build passed; hosting confirmed version 3 deployment succeeded.
 - Public news loading was verified in the browser after the fix.
 - A full hosted speech/voice-recreation flow has not been verified. The previously reported own-voice playback/flow issue remains open.
 - Production hardening still needs rate limiting, abuse prevention and broader language/device checks.

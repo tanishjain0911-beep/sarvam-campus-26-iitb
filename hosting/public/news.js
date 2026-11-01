@@ -18,7 +18,7 @@
   const section=el('main','news-mode'); section.id='news-mode'; section.hidden=true;
   section.innerHTML=`<div class="news-shell">
     <div class="news-intro"><div><p class="news-eyebrow">YOUR WORLD. YOUR LANGUAGE. YOUR VOICE.</p><h2>Your personal listening edition.</h2><p>Choose what matters to you. Hear current headlines in your language, with an optional AI recreation of your own voice.</p></div><span class="news-edition-mark" aria-hidden="true">N / M</span></div>
-    <div class="news-controls"><div><label for="news-topic">Your interests</label><select id="news-topic"><option value="world">World affairs</option><option value="technology">Technology</option><option value="science">Science & environment</option><option value="business">Business</option></select></div><div><label for="news-language">Your listening language</label><select id="news-language"></select></div><button type="button" id="news-refresh" class="btn btn-secondary">Refresh headlines</button></div>
+    <div class="news-controls"><div><label for="news-topic">Your interests</label><select id="news-topic"><option value="india">India headlines</option><option value="world">World affairs</option><option value="technology">Technology</option><option value="science">Science & environment</option><option value="business">Business</option></select></div><div><label for="news-language">Your listening language</label><select id="news-language"></select></div><button type="button" id="news-refresh" class="btn btn-secondary">Refresh headlines</button></div>
     <div class="news-feed-meta"><span id="news-freshness">Headlines update from the source.</span><span class="news-poll-note">Checks every minute while this view is open</span></div>
     <p id="news-status" class="news-status" role="status" aria-live="polite"></p>
     <div class="news-layout"><section class="news-feed" aria-label="Current news headlines"><div id="news-cards" class="news-cards"></div></section>
@@ -35,7 +35,7 @@
   const audio=$('#news-audio'),audioStatus=$('#news-audio-status'),output=$('#news-output'),sample=$('#news-voice-file'),consent=$('#news-voice-consent'),clone=$('#news-clone');
   const languageOptions=[['en-IN','English'],['hi-IN','हिन्दी · Hindi'],['bn-IN','বাংলা · Bengali'],['gu-IN','ગુજરાતી · Gujarati'],['kn-IN','ಕನ್ನಡ · Kannada'],['ml-IN','മലയാളം · Malayalam'],['mr-IN','मराठी · Marathi'],['or-IN','ଓଡ଼ିଆ · Odia'],['pa-IN','ਪੰਜਾਬੀ · Punjabi'],['ta-IN','தமிழ் · Tamil'],['te-IN','తెలుగు · Telugu']];
   for(const [value,name] of languageOptions) {const o=el('option','',name);o.value=value;language.append(o);}
-  const savedTopic=store.get('suno_news_topic','technology'); if([...topic.options].some(o=>o.value===savedTopic))topic.value=savedTopic;
+  const savedTopic=store.get('suno_news_topic','india'); if([...topic.options].some(o=>o.value===savedTopic))topic.value=savedTopic;
   const savedLanguage=store.get('suno_news_language','hi-IN'); if(languageOptions.some(o=>o[0]===savedLanguage))language.value=savedLanguage;
   let active=false,fetching=false,busy=false,prepared=null,audioUrl=null,feedController=null,feedVersion=0;
   const dateLabel=value=>{if(!value)return 'Publication time unavailable';const d=new Date(value);return Number.isNaN(d.getTime())?'Publication time unavailable':d.toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'});};
@@ -65,7 +65,7 @@
         actions.append(listen,source);card.append(meta,title,description,actions);cards.append(card);
       }
       freshness.textContent='Last checked '+dateLabel(data.fetchedAt||new Date().toISOString());
-      status.textContent=cards.children.length?'Choose a story to hear your edition.':'No current headlines were returned. Try another topic.';
+      status.textContent=cards.children.length?'Choose a story to hear your edition.'+(data.unavailableSources?.length?' Some publishers are temporarily unavailable.':''):'No current headlines were returned. Try another topic.';
     } catch(error) {if(version===feedVersion&&error.name!=='AbortError')status.textContent=error.message||'Cannot load headlines. Please try again.';}finally{if(version===feedVersion){fetching=false;refresh.disabled=false;}}
   }
   async function listenStory(item) {

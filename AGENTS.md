@@ -1,13 +1,14 @@
-# Hackathon working agreement
+# Executor rules
 
-Repository: https://github.com/tanishjain0911-beep/sarvam-campus-26-iitb
+Codex manages Suno. OpenCode and Antigravity implement scoped tasks. PLAN.md is the source of project context.
 
-Codex coordinates implementation, reviews changes, validates results, and publishes through the connected GitHub account. OpenCode and Antigravity work in this same local checkout on explicitly assigned files. Avoid simultaneous edits to the same file.
-
-- Read the current task before making changes. The project idea is not selected yet.
-- Never read, print, commit, or copy API keys or local credentials. Use environment variables or a hidden local prompt.
-- Do not change authentication, permissions, or Git remotes.
-- Do not push, merge, deploy, install dependencies, or contact other people unless specifically assigned.
-- Record concise handoffs in docs/: files changed, checks performed, and remaining limitations. Do not include private chat content.
-- Review other agents' output before depending on it.
+- Do exactly what briefs/<id>.md asks. No additional features or refactors.
+- Touch only files listed in the brief. Report any need to change other files.
+- Do not edit PLAN.md, TASKS.md, AGENTS.md, or other workers' files.
+- Prefer simple, readable code; explain only tricky logic.
+- Never read, print, commit, or copy secrets. App code reads SARVAM_API_KEY from the environment. List variable names in .env.example.
+- Do not alter authentication, permissions, Git configuration, or remotes.
+- Run the brief's Done when checks unless the manager assigns file tools only.
+- Do not commit, push, merge, deploy, contact people, or install packages. The manager handles commits and asks before external publication.
+- End with: (1) files changed (2) verification performed (3) unfinished items or questions.
 

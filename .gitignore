@@ -9,4 +9,10 @@ __pycache__/
 node_modules/
 work/
 *.log
+logs/
+.worktrees/
+sarvam-out/
+*.wav
+*.mp3
+*.zip
 

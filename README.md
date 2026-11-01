@@ -54,13 +54,18 @@ The selection is automated and heuristic; it is not a definitive ranking of impo
 
 1. Open **News Mirror** and choose a topic.
 2. Choose a listening language, then **Listen in my language** on a headline.
-3. Wait for generation, then **press Play** on the audio player.
-4. For the own-voice beta, record 12 seconds or upload a clean WAV, confirm consent, then choose **Read in my voice**. Press Play when ready.
-5. Switch to **Text Reader** for standard-voice narration of pasted text.
+3. In India headlines, optionally choose **Your city** to mix three national stories with up to two local stories. **National only** keeps the original briefing.
+4. Wait for generation, then **press Play** on the audio player.
+5. For the own-voice beta, record 12 seconds or upload a clean WAV, confirm consent, then choose **Read in my voice**. Press Play when ready.
+6. Switch to **Text Reader** for standard-voice narration of pasted text.
 
 Use a clean, single-speaker WAV between **1 and 15 seconds**, at most **10 MB**; 10–15 seconds is recommended. Selecting or recording a sample alone does not upload it. The explicit clone action sends it to Sarvam after consent.
 
 > **Prototype status:** Own-voice recreation is experimental; likeness, accent and expression vary. The Text Reader currently uses a standard voice; a sample uploaded in News Mirror does not change its voice. A reported own-voice playback/flow issue remains under investigation. See the [validation record](docs/VALIDATION.md) for tested paths and limitations.
+
+## Local editions
+
+In **India headlines**, select Mumbai, Pune, Delhi, Bengaluru, Chennai, Hyderabad, Kolkata, Lucknow or Chandigarh. The edition reserves up to two slots for ranked local stories and keeps major national coverage. Local stories are labeled with the city. If fresh local coverage is unavailable, national stories fill the remaining slots. No GPS permission is requested; the chosen city is remembered on your device. City preferences apply to the India edition.
 
 ## Architecture
 
@@ -95,7 +100,7 @@ See [news sources and feed behavior](docs/NEWS-SOURCES.md) for publisher coverag
 - API keys stay on the server. `.env`, credentials and recordings are excluded from Git.
 - Generation sends text to Sarvam and may consume credits. Voice recreation additionally sends the consented recording.
 - Suno does not save a voice profile or text/audio history on its server; provider data policies apply.
-- Only appearance preferences are saved locally. There are no accounts or analytics.
+- Appearance, topic, language and city preferences are saved locally. There are no accounts or analytics.
 - News uses sourced headlines and snippets, with original links. Full articles are not scraped.
 - A one-minute refresh checks the feed; it does not guarantee new reporting every minute.
 - Personalization means topic and language selection. There is no learned recommendation engine or exact voice, tone or accent guarantee.
@@ -110,7 +115,7 @@ node --check public/news.js
 node --check public/voice-recorder.js
 ```
 
-The local Node application has **50 tests**, and the hosted adapter adds **31 tests** (81 total when run from the repository root). The tests cover input validation, consent, WAV validation, feeds, routes, provider failures and timeouts. Tests use mocks and do not spend credits. A real news-to-Hindi standard narration was decoded in the browser; this does not establish own-voice similarity or quality across every language.
+The local Node application has **58 tests**, and the hosted adapter adds **38 tests** (96 total when run from the repository root). The tests cover input validation, consent, WAV validation, feeds, routes, provider failures and timeouts. Tests use mocks and do not spend credits. A real news-to-Hindi standard narration was decoded in the browser; this does not establish own-voice similarity or quality across every language.
 
 This hackathon prototype is deployed publicly on Sites hosting. The Sarvam key is configured as a hosted runtime secret. Production hardening still needs rate limiting, abuse prevention and broader testing. See [deployment notes](docs/DEPLOYMENT.md).
 

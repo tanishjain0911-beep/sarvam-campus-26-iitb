@@ -18,9 +18,9 @@
   const section=el('main','news-mode'); section.id='news-mode'; section.hidden=true;
   section.innerHTML=`<div class="news-shell">
     <div class="news-intro"><div><p class="news-eyebrow">THE SUNO BRIEFING</p><h2>Less noise.<br>More perspective.</h2><p>A focused edition of major stories, led by Indian reporting. Read the essentials. Listen in your language.</p></div><span class="news-edition-mark" aria-hidden="true">5<span class="edition-small">STORIES.<br>A CLEARER DAY.</span></span></div>
-    <div class="news-controls"><div><label for="news-topic">Your interests</label><select id="news-topic"><option value="india">India headlines</option><option value="world">World affairs</option><option value="technology">Technology</option><option value="science">Science & environment</option><option value="business">Business</option></select></div><div><label for="news-language">Your listening language</label><select id="news-language"></select></div><button type="button" id="news-refresh" class="btn btn-secondary">Refresh headlines</button></div>
+    <div class="news-controls"><div><label for="news-topic">Your interests</label><select id="news-topic"><option value="india">India headlines</option><option value="world">World affairs</option><option value="technology">Technology</option><option value="science">Science & environment</option><option value="business">Business</option></select></div><div id="news-city-control"><label for="news-city">Your city</label><select id="news-city"><option value="national">National only</option><option value="mumbai">Mumbai · Maharashtra</option><option value="pune">Pune · Maharashtra</option><option value="delhi">Delhi</option><option value="bengaluru">Bengaluru · Karnataka</option><option value="chennai">Chennai · Tamil Nadu</option><option value="hyderabad">Hyderabad · Telangana</option><option value="kolkata">Kolkata · West Bengal</option><option value="lucknow">Lucknow · Uttar Pradesh</option><option value="chandigarh">Chandigarh</option></select></div><div><label for="news-language">Your listening language</label><select id="news-language"></select></div><button type="button" id="news-refresh" class="btn btn-secondary">Refresh headlines</button></div>
     <div class="news-feed-meta"><span id="news-freshness">Headlines update from the source.</span><span class="news-poll-note">Checks every minute while this view is open</span></div>
-    <details class="briefing-method"><summary>How are stories selected?</summary><p>We prioritize recent reporting, public-interest topics and stories covered by multiple publishers. Similar headlines are grouped. This is an automated selection, not a definitive measure of importance. Source availability can affect the edition.</p></details><div class="briefing-feed-heading"><h3>The essential five</h3><span>YOUR TOPIC. A BROADER VIEW.</span></div><p id="news-status" class="news-status" role="status" aria-live="polite"></p>
+    <details class="briefing-method"><summary>How are stories selected?</summary><p>We prioritize recent reporting, public-interest topics and stories covered by multiple publishers. Similar headlines are grouped. This is an automated selection, not a definitive measure of importance. Source availability can affect the edition. In India, choose a city to mix three national stories with up to two local stories. Your city preference is saved on this device; no GPS location is requested.</p></details><div class="briefing-feed-heading"><h3>The essential five</h3><span>YOUR TOPIC. A BROADER VIEW.</span></div><p id="news-status" class="news-status" role="status" aria-live="polite"></p>
     <div class="news-layout"><section class="news-feed" aria-label="Current news headlines"><div id="news-cards" class="news-cards"></div></section>
     <aside class="news-listening card" aria-labelledby="news-listening-title"><p class="news-eyebrow">THE LISTENING ROOM</p><h3 id="news-listening-title">Your briefing, out loud.</h3><p class="news-listen-hint">Choose a story to hear the essentials in your preferred language. Press play when your reading is ready.</p>
       <div id="news-output" hidden><span id="news-audio-kind" class="badge">Standard voice</span><h4 id="news-output-title"></h4><p id="news-output-text" class="news-output-text"></p><audio id="news-audio" controls preload="metadata"></audio></div>
@@ -31,11 +31,13 @@
   </div>`;
   reader.before(section);
   const $=s=>section.querySelector(s);
+  const city=$('#news-city'),cityControl=$('#news-city-control');
   const topic=$('#news-topic'),language=$('#news-language'),cards=$('#news-cards'),status=$('#news-status'),freshness=$('#news-freshness'),refresh=$('#news-refresh');
   const audio=$('#news-audio'),audioStatus=$('#news-audio-status'),output=$('#news-output'),sample=$('#news-voice-file'),consent=$('#news-voice-consent'),clone=$('#news-clone');
   const languageOptions=[['en-IN','English'],['hi-IN','हिन्दी · Hindi'],['bn-IN','বাংলা · Bengali'],['gu-IN','ગુજરાતી · Gujarati'],['kn-IN','ಕನ್ನಡ · Kannada'],['ml-IN','മലയാളം · Malayalam'],['mr-IN','मराठी · Marathi'],['or-IN','ଓଡ଼ିଆ · Odia'],['pa-IN','ਪੰਜਾਬੀ · Punjabi'],['ta-IN','தமிழ் · Tamil'],['te-IN','తెలుగు · Telugu']];
   for(const [value,name] of languageOptions) {const o=el('option','',name);o.value=value;language.append(o);}
   const savedTopic=store.get('suno_news_topic','india'); if([...topic.options].some(o=>o.value===savedTopic))topic.value=savedTopic;
+  const savedCity=store.get('suno_news_city','national');if([...city.options].some(o=>o.value===savedCity))city.value=savedCity;cityControl.hidden=topic.value!=='india';
   const savedLanguage=store.get('suno_news_language','hi-IN'); if(languageOptions.some(o=>o[0]===savedLanguage))language.value=savedLanguage;
   let active=false,fetching=false,busy=false,prepared=null,audioUrl=null,feedController=null,feedVersion=0;
   const dateLabel=value=>{if(!value)return 'Publication time unavailable';const d=new Date(value);return Number.isNaN(d.getTime())?'Publication time unavailable':d.toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'});};
@@ -51,14 +53,14 @@
     if(fetching||!active||document.hidden)return;
     fetching=true;refresh.disabled=true;const version=++feedVersion;feedController=new AbortController();status.textContent='Checking the publisher for current headlines…';
     try {
-      const r=await fetch('/api/news?topic='+encodeURIComponent(topic.value),{signal:feedController.signal});
+      const r=await fetch('/api/news?topic='+encodeURIComponent(topic.value)+'&city='+encodeURIComponent(topic.value==='india'?city.value:'national'),{signal:feedController.signal});
       const data=await r.json();if(!r.ok)throw Error(data.error||'Headlines are unavailable right now.');
       if(version!==feedVersion)return;
       cards.replaceChildren();
       for(const [index,item] of (data.items||[]).slice(0,5).entries()) {
         let sourceUrl;try{sourceUrl=new URL(item.url);if(sourceUrl.protocol!=='https:')continue;}catch{continue;}
         const card=el('article','news-story'+(index===0?' news-story-lead':''));
-        const topline=el('div','story-topline');topline.append(el('span','story-position',index===0?'THE LEAD STORY':String(index+1).padStart(2,'0')),el('span','story-reason',item.selectionReason||'Selected for your edition'));card.append(topline);
+        const topline=el('div','story-topline');topline.append(el('span','story-position',index===0?'THE LEAD STORY':String(index+1).padStart(2,'0')),el('span','story-reason',(item.scope==='local'?'Local · '+item.city:item.selectionReason)||'Selected for your edition'));card.append(topline);
         const meta=el('div','news-story-meta');meta.append(el('span','news-source',item.source||'News source'),el('time','',dateLabel(item.publishedAt)));
         const title=el('h3','',String(item.title||''));const description=el('p','news-excerpt',String(item.description||'').slice(0,220));
         const actions=el('div','news-story-actions');const listen=el('button','btn btn-primary','Listen in my language');listen.type='button';listen.disabled=busy;listen.addEventListener('click',()=>listenStory(item));
@@ -68,7 +70,7 @@
         card.append(actions);cards.append(card);
       }
       freshness.textContent='Last checked '+dateLabel(data.fetchedAt||new Date().toISOString());
-      status.textContent=cards.children.length?cards.children.length+' stories selected · '+new Set((data.items||[]).map(i=>i.source)).size+' publishers'+(data.unavailableSources?.length?' · Some feeds unavailable':''):'No recent headlines are available for this topic. Try another edition.';
+      status.textContent=cards.children.length?cards.children.length+' stories selected'+(data.cityLabel?' · '+(cards.children.length-data.localCount)+' national + '+data.localCount+' '+data.cityLabel:'')+' · '+new Set((data.items||[]).map(i=>i.source)).size+' publishers'+(data.unavailableSources?.length?' · Some feeds unavailable':'')+(data.cityLabel&&data.localStatus!=='available'?' · No fresh local stories; showing national coverage':''):'No recent headlines are available for this topic. Try another edition.';
     } catch(error) {if(version===feedVersion&&error.name!=='AbortError')status.textContent=error.message||'Cannot load headlines. Please try again.';}finally{if(version===feedVersion){fetching=false;refresh.disabled=false;}}
   }
   async function listenStory(item) {
@@ -106,7 +108,8 @@
   }
   readerButton.addEventListener('click',()=>setMode(false));newsButton.addEventListener('click',()=>setMode(true));
   refresh.addEventListener('click',fetchNews);
-  topic.addEventListener('change',()=>{store.set('suno_news_topic',topic.value);if(feedController)feedController.abort();fetching=false;fetchNews();});
+  topic.addEventListener('change',()=>{store.set('suno_news_topic',topic.value);cityControl.hidden=topic.value!=='india';if(feedController)feedController.abort();fetching=false;fetchNews();});
+  city.addEventListener('change',()=>{store.set('suno_news_city',city.value);if(feedController)feedController.abort();fetching=false;fetchNews();});
   language.addEventListener('change',()=>{store.set('suno_news_language',language.value);prepared=null;stopAudio();output.hidden=true;consent.checked=false;cloneState();audioStatus.textContent='Language changed. Choose a headline to create a new reading.';});
   sample.addEventListener('change',()=>{consent.checked=false;cloneState();});consent.addEventListener('change',cloneState);clone.addEventListener('click',cloneReading);
   setInterval(()=>{if(active&&!document.hidden)fetchNews();},60000);

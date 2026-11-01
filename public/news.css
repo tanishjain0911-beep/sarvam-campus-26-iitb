@@ -38,3 +38,6 @@
 .news-status{margin:10px 0 20px;font-size:.76rem}.news-shell{padding-top:25px}
 @media(max-width:760px){.news-layout{grid-template-columns:1fr}.news-listening{position:static}.news-intro{padding-top:0}.news-intro h2{font-size:3.2rem}.news-edition-mark{display:none}.news-story-lead{padding:24px}.news-story{padding:22px}.briefing-feed-heading>span{max-width:110px}.news-listening{padding:22px}.news-controls>div{min-width:calc(50% - 12px)}.news-controls{gap:12px}.news-controls label{font-size:.76rem}.news-controls select{font-size:.85rem;padding:9px}.story-topline{letter-spacing:.04em}.story-reason{font-size:.64rem}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+.news-controls{flex-wrap:wrap}.news-controls>div{min-width:150px}.news-controls>button{flex:0 0 auto}
+@media(max-width:760px){.news-controls>div{min-width:calc(50% - 12px)}.news-controls>button{flex:1 0 100%}}

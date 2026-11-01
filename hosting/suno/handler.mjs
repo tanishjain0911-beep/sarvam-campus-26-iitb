@@ -36,7 +36,7 @@ export async function handleSuno(request, env={}, fetchImpl=fetch) {
   }
   if(route==='/api/health') return json({ok:true,configured:Boolean(env.SARVAM_API_KEY)});
   if(route==='/api/news'&&request.method==='GET') {
-    try{return json(await getNews({topic:url.searchParams.get('topic')||'world',fetchImpl}));}
+    try{return json(await getNews({topic:url.searchParams.get('topic')||'world',city:url.searchParams.get('city')||'national',fetchImpl}));}
     catch(error){return json({error:error.code==='BAD_TOPIC'?'Choose a supported topic.':'News could not be refreshed. Please try again later.'},error.code==='BAD_TOPIC'?400:error.code==='NEWS_TIMEOUT'?504:502);}
   }
   if(route!=='/api/read'&&route!=='/api/news-voice') return json({error:'Not found.'},404);

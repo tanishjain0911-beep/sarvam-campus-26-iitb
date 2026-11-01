@@ -61,3 +61,11 @@ GitHub push and deployment require participant approval. No secrets, audio or lo
 - A prominent lead card, ranked supporting stories, selection labels, shorter excerpts and collapsed optional voice controls replace the undifferentiated feed. Duplicate hero text is hidden in news mode.
 - 81 tests passed, including seven ranking cases in each application copy. Desktop layout was visually inspected. A 390px phone viewport had no horizontal overflow; override was reset afterward.
 - Hosted version 4 deployed successfully; public browser showed five ranked stories, public-safety and policy labels, the updated layout and source-availability message. No additional paid speech calls or voice uploads were used for this update.
+
+## City preference update
+
+- Added nine manual city editions to India headlines, with National only as the default. Each mixed edition retains up to three ranked national stories and adds up to two local stories; remaining national candidates fill gaps when local coverage is unavailable.
+- City feeds were checked live before configuration. A live Mumbai request returned three national and two local stories.
+- Hosted version 5 deployed successfully. The public browser showed the Mumbai selector, explicit 3 national + 2 Mumbai count, city labels, and local article links. Reload preserved the selection.
+- 96 automated tests passed, including city cache separation, invalid input rejection, missing/stale local fallback, national-source outage behavior and duplicate handling. A route test covers city query validation.
+- No GPS access, paid speech requests or voice uploads were used for this update.

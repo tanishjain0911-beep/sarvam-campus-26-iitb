@@ -76,3 +76,5 @@ test('clone route rejects malformed JSON', async t => {
   assert.equal(response.status, 400);
   assert.deepEqual(await response.json(), {error:'Invalid JSON.'});
 });
+
+test('city parameter is validated by the HTTP news route',async t=>{const base=await serve(t);const response=await fetch(base+'/api/news?topic=india&city=unsupported');assert.equal(response.status,400);});

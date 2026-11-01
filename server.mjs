@@ -127,7 +127,7 @@ async function handleRequest(req, res, config) {
 
   if (req.method === "GET" && pathname === "/api/news") {
     try {
-      sendJson(res, 200, await getNews({topic: url.searchParams.get('topic') || 'world', fetchImpl}));
+      sendJson(res, 200, await getNews({topic: url.searchParams.get('topic') || 'world', city: url.searchParams.get('city') || 'national', fetchImpl}));
     } catch (error) {
       const status = error.code === 'BAD_TOPIC' ? 400 : error.code === 'NEWS_TIMEOUT' ? 504 : 502;
       sendJson(res, status, {error: status === 400 ? 'Choose a supported topic.' : 'News could not be refreshed. Please try again later.'});

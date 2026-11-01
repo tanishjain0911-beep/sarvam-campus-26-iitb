@@ -1,4 +1,4 @@
-import { rankNews } from './news-ranking.mjs';
+import { rankNews, sameNewsStory } from './news-ranking.mjs';
 import { createHash } from 'node:crypto';
 
 const publisher = (name, hosts, url) => Object.freeze({name,hosts,url});
@@ -12,6 +12,19 @@ export const NEWS_FEEDS = Object.freeze({
   technology: [express('technology'),hindu('sci-tech/technology'),bbc('technology')],
   science: [express('technology/science'),hindu('sci-tech/science'),bbc('science_and_environment')],
   business: [express('business'),hindu('business'),bbc('business')]
+});
+
+const cityFeed=(label,state,slug)=>Object.freeze({label,state,source:publisher('Hindustan Times',['hindustantimes.com','www.hindustantimes.com'],'https://www.hindustantimes.com/feeds/rss/cities/'+slug+'-news/rssfeed.xml')});
+export const CITY_FEEDS=Object.freeze({
+  mumbai:cityFeed('Mumbai','Maharashtra','mumbai'),
+  pune:cityFeed('Pune','Maharashtra','pune'),
+  delhi:cityFeed('Delhi','Delhi','delhi'),
+  bengaluru:cityFeed('Bengaluru','Karnataka','bengaluru'),
+  kolkata:cityFeed('Kolkata','West Bengal','kolkata'),
+  lucknow:cityFeed('Lucknow','Uttar Pradesh','lucknow'),
+  chandigarh:cityFeed('Chandigarh','Chandigarh','chandigarh'),
+  chennai:Object.freeze({label:'Chennai',state:'Tamil Nadu',source:hindu('news/cities/chennai')}),
+  hyderabad:Object.freeze({label:'Hyderabad',state:'Telangana',source:hindu('news/cities/Hyderabad')})
 });
 
 const caches = new WeakMap();
@@ -85,18 +98,30 @@ async function fetchSource(source, fetchImpl, timeoutMs) {
   finally{clearTimeout(timer);}
 }
 
-export async function getNews({topic='world',fetchImpl=fetch,now=Date.now,timeoutMs=TIMEOUT_MS}={}) {
+export async function getNews({topic='world',city='national',fetchImpl=fetch,now=Date.now,timeoutMs=TIMEOUT_MS}={}) {
   if(!Object.hasOwn(NEWS_FEEDS,topic))throw new NewsError('Choose India, world, technology, science or business.','BAD_TOPIC');
+  if(city!=='national'&&(!Object.hasOwn(CITY_FEEDS,city)||topic!=='india'))throw new NewsError('Choose a supported city in the India edition.','BAD_TOPIC');
   const timestamp=typeof now==='function'?now():now;
   if(!Number.isFinite(timestamp))throw new NewsError('News clock is unavailable.');
   let cache=caches.get(fetchImpl);if(!cache){cache=new Map();caches.set(fetchImpl,cache);}
-  const prior=cache.get(topic);
+  const cacheKey=topic+':'+city;
+  const prior=cache.get(cacheKey);
   if(prior&&timestamp>=prior.time&&timestamp-prior.time<TTL_MS)return structuredClone(prior.result);
-  const sources=NEWS_FEEDS[topic];
+  const regional=city==='national'?null:CITY_FEEDS[city];
+  const sources=[...NEWS_FEEDS[topic],...(regional?[regional.source]:[])];
   const results=await Promise.allSettled(sources.map(source=>fetchSource(source,fetchImpl,timeoutMs)));
-  const lists=results.filter(result=>result.status==='fulfilled').map(result=>result.value);
-  if(!lists.length)throw results[0].reason;
-  const items=rankNews(lists,{now:timestamp});
-  const result={items,fetchedAt:new Date(timestamp).toISOString(),topic,ranking:"recency-public-interest-coverage",sources:lists.map(list=>list[0].source),unavailableSources:results.flatMap((r,i)=>r.status==='rejected'?[sources[i].name]:[])};
-  cache.set(topic,{time:timestamp,result});return structuredClone(result);
+  const lists=results.slice(0,NEWS_FEEDS[topic].length).filter(result=>result.status==='fulfilled').map(result=>result.value);
+  const localResult=regional?results[results.length-1]:null;
+  if(!lists.length&&localResult?.status!=='fulfilled')throw results[0].reason;
+  const national=rankNews(lists,{now:timestamp});
+  const local=localResult?.status==='fulfilled'?rankNews([localResult.value],{now:timestamp}):[];
+  const items=regional?national.slice(0,3).map(item=>({...item,scope:'national'})):national;
+  if(regional){
+    const seen=new Set(items.map(item=>item.url));let added=0;
+    for(const item of local){if(seen.has(item.url)||items.some(existing=>sameNewsStory(existing,item)))continue;items.push({...item,scope:'local',city:regional.label});seen.add(item.url);if(++added===2)break;}
+    for(const item of national.slice(3)){if(items.length===5)break;if(!seen.has(item.url)){items.push({...item,scope:'national'});seen.add(item.url);}}
+  }
+  const localCount=items.filter(item=>item.scope==='local').length;
+  const result={items,fetchedAt:new Date(timestamp).toISOString(),topic,city,cityLabel:regional?.label||null,localCount,localStatus:!regional?'not-requested':localCount?'available':localResult.status==='rejected'?'unavailable':'no-recent-headlines',ranking:'recency-public-interest-coverage',sources:[...new Set(results.filter(r=>r.status==='fulfilled').map(r=>r.value[0].source))],unavailableSources:[...new Set(results.flatMap((r,i)=>r.status==='rejected'?[sources[i].name]:[]))]};
+  cache.set(cacheKey,{time:timestamp,result});return structuredClone(result);
 }

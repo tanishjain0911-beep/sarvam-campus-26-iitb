@@ -1,63 +1,118 @@
-# Suno News Mirror — Your world. Your language.
+# Suno News Mirror
 
-## New: your personal listening edition
+### Your world. Your language. A voice like yours.
 
-News Mirror is the default mode. Choose World, Technology, Science or Business; view up to five current BBC RSS headlines with original-source links and publication times. It checks for updates every minute while visible (source publication schedules determine freshness). Select a listening language and choose **Listen in my language** for translated narration.
+**A multilingual listening companion built for Sarvam Campus '26 at IIT Bombay.**
 
-Optional **Read in my voice (beta)** uses a clean, single-speaker WAV recording between 1 and 15 seconds (10–15 recommended), max 10 MB, with an explicit consent checkbox. Use **Record my voice (12 seconds)** in the app or upload an existing WAV. Microphone access is requested only after your click; recording stays local until you consent and press the clone button. No voice profile is saved by Suno. Accent, expression and similarity can vary. Failed cloning preserves standard audio. Clone behavior is covered by mocks; a live own-voice test requires your actual recording.
+Suno turns current headlines and everyday text into spoken audio. Choose a topic, pick your listening language, and hear a personal news edition powered by Sarvam AI. Optional, consent-based voice recreation adds a familiar voice to the experience.
 
-The original **Text Reader** remains available. See [45-second News Mirror demo](docs/NEWS-DEMO.md).
-A multilingual text-to-speech reader for Sarvam Campus '26 at IIT Bombay. Paste a short notice, study paragraph, or message, choose your listening language, and listen or download a WAV. No account is needed in the reader.
+[Quick start](#quick-start) · [Demo guide](docs/NEWS-DEMO.md) · [Validation](docs/VALIDATION.md) · [Project plan](PLAN.md)
 
-## Current status
+---
 
-Selected from Idea Library #18, Text-to-Speech Content Reader, for a short, complete, broadly useful accessibility flow. This is a local hackathon prototype; population reach and accessibility outcomes have not been measured. See [PLAN.md](PLAN.md), [TASKS.md](TASKS.md), and [demo checklist](docs/DEMO.md).
+## Features
 
-## Run Suno
+| Mode | Input | Result |
+| --- | --- | --- |
+| **News Mirror** | Choose World, Technology, Science or Business | Up to five current BBC RSS headlines with source links and publication times |
+| **Listen in my language** | Select a headline and listening language | Translated text and playable WAV narration |
+| **Own-voice beta** | Prepare a headline, supply your WAV and confirm consent | An AI voice recreation reading the prepared text |
+| **Text Reader** | Paste a notice, study paragraph or message | Readable text and standard-voice audio, with playback speed and download controls |
 
-Requires Node.js 22+ and a Sarvam API key. No npm dependencies need installing.
+**11 listening languages:** English, Hindi, Bengali, Gujarati, Kannada, Malayalam, Marathi, Odia, Punjabi, Tamil and Telugu.
 
-Set `SARVAM_API_KEY` privately in your environment, then run `npm start` and open http://127.0.0.1:3000.
+Larger text, high contrast, keyboard focus indicators and native audio controls support different reading preferences. Accessibility has not been formally audited.
 
-Alternatively copy `.env.example` to `.env`, enter the key in a local editor, and run `node --env-file=.env server.mjs`.
+## Quick start
 
-For this participant's existing credentials file, run `node scripts/start-local.mjs`, or double-click `Start-Suno.cmd` on Windows. The convenience launcher reads `~/.sarvam/credentials` into the server environment without displaying or copying the key. Optional `PORT` changes the port; `HOST` defaults to loopback. The app itself reads the key from the environment.
+Requires **Node.js 22+**, internet access and a **Sarvam API key**. No npm dependencies are required.
 
-## One complete flow
-
-1. Enter up to 1,000 Unicode code points or select a sample.
-2. Choose the original and listening languages.
-3. Choose **Create audio**. Matching languages skip translation.
-4. Read the prepared text, play at your chosen speed, or download the WAV.
-
-The UI offers English, Hindi, Bengali, Gujarati, Kannada, Malayalam, Marathi, Odia, Punjabi, Tamil and Telugu. Only paths recorded in the validation report have been tested live.
-
-Keyboard labels/focus, native audio controls, larger text and high-contrast modes support different reading preferences. This is not a formal accessibility audit. Only appearance preferences are saved locally.
-
-## APIs and privacy
-
-Sarvam `/translate` uses `mayura:v1`; `/text-to-speech` uses `bulbul:v3`, voice `shubh`, 24kHz WAV. Request shapes were checked using Sarvam MCP pricing, snippet and request-validation tools before coding.
-
-Generation needs internet and sends entered text to Sarvam. Suno does not save text/audio history on its server; Sarvam's own data policies apply. Each explicit request can use credits. There are no automatic retries. If speech fails after translation, the prepared text remains readable.
-
-Keys stay server-side. `.env`, audio, logs and worktrees are excluded from Git. Raw provider errors and credentials are not returned to browsers. No OCR, article scraping, automatic summaries, accounts or analytics are included. Own-voice upload is an optional News Mirror beta feature.
-
-## Verify
-
-Run `npm test` and `node --check public/app.js`. Tests use mocked provider responses and do not spend credits. Completed browser/live checks are recorded in `docs/VALIDATION.md`. GitHub publication and deployment require approval. Production hosting additionally needs abuse prevention, rate limiting and further validation.
-
-## Tools and coordination
-
-Codex plans, reviews, tests and commits. OpenCode implements scoped briefs in worktrees; Antigravity implements the interface. Hyde was skipped at the participant's request. Separate GitHub credentials are not shared with workers. Codex asks before external publishing.
-
-Task handoffs are recorded in `docs/`. Use GitHub issues for implementation tasks and pull requests for review.
-
-## Test Sarvam access
-
-Python 3 is required; no packages need installing for this test.
-
-```sh
-python scripts/test_sarvam.py
+```bash
+git clone https://github.com/tanishjain0911-beep/sarvam-campus-26-iitb.git
+cd sarvam-campus-26-iitb
 ```
 
-Enter your API key at the hidden local prompt. The script sends one chat request to Sarvam and does not save the key. Keep keys out of chat, commits, issues, and screenshots. Live API calls may consume credits.
+Copy `.env.example` to `.env`, enter your key in a local editor, then start:
+
+```bash
+node --env-file=.env server.mjs
+```
+
+Open **http://127.0.0.1:3000**. If `SARVAM_API_KEY` is already set in your environment, use `npm start`.
+
+**Windows launcher:** `Start-Suno.cmd` or `node scripts/start-local.mjs` reads an existing `~/.sarvam/credentials` file without printing the key. Set `PORT` to change the port; `HOST` defaults to loopback.
+
+## Demo walkthrough
+
+1. Open **News Mirror** and choose a topic.
+2. Choose a listening language, then **Listen in my language** on a headline.
+3. Wait for generation, then **press Play** on the audio player.
+4. For the own-voice beta, record 12 seconds or upload a clean WAV, confirm consent, then choose **Read in my voice**. Press Play when ready.
+5. Switch to **Text Reader** for standard-voice narration of pasted text.
+
+Use a clean, single-speaker WAV between **1 and 15 seconds**, at most **10 MB**; 10–15 seconds is recommended. Selecting or recording a sample alone does not upload it. The explicit clone action sends it to Sarvam after consent.
+
+> **Prototype status:** Own-voice recreation is experimental; likeness, accent and expression vary. The Text Reader currently uses a standard voice; a sample uploaded in News Mirror does not change its voice. A reported own-voice playback/flow issue remains under investigation. See the [validation record](docs/VALIDATION.md) for tested paths and limitations.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A[Topic selection] --> B[BBC RSS headlines]
+    B --> C[Selected headline and snippet]
+    D[Pasted text] --> E[Node.js server]
+    C --> E
+    E --> F[Sarvam translation]
+    F --> G[Standard speech synthesis]
+    F --> H[Consented voice recreation beta]
+    I[Your WAV sample] --> H
+    G --> J[Text and WAV audio]
+    H --> J
+```
+
+| Component | Implementation |
+| --- | --- |
+| Frontend | HTML, CSS and vanilla JavaScript |
+| Server | Native Node.js HTTP server |
+| Translation | Sarvam `mayura:v1`, formal mode |
+| Standard speech | Sarvam `bulbul:v3`, `shubh`, 24 kHz WAV |
+| Voice recreation | Sarvam `/voices/clone`, consent-gated multipart WAV |
+| News | Fixed BBC RSS topic feeds; 60-second cache and visible-page polling |
+| Tests | Node.js built-in test runner with mocked provider responses |
+
+## Privacy and boundaries
+
+- API keys stay on the server. `.env`, credentials and recordings are excluded from Git.
+- Generation sends text to Sarvam and may consume credits. Voice recreation additionally sends the consented recording.
+- Suno does not save a voice profile or text/audio history on its server; provider data policies apply.
+- Only appearance preferences are saved locally. There are no accounts or analytics.
+- News uses sourced headlines and snippets, with original links. Full articles are not scraped.
+- A one-minute refresh checks the feed; it does not guarantee new reporting every minute.
+- Personalization means topic and language selection. There is no learned recommendation engine or exact voice, tone or accent guarantee.
+
+## Development and verification
+
+```bash
+npm test
+node --check server.mjs
+node --check public/app.js
+node --check public/news.js
+node --check public/voice-recorder.js
+```
+
+The automated suite contains **38 tests**, covering input validation, consent, WAV validation, feeds, routes, provider failures and timeouts. Tests use mocks and do not spend credits. A real news-to-Hindi standard narration was decoded in the browser; this does not establish own-voice similarity or quality across every language.
+
+This hackathon prototype runs locally. Public hosting needs rate limiting, abuse prevention and broader testing. Publishing the repository does not deploy the application.
+
+## Repository guide
+
+```text
+public/       Interface, audio playback and local WAV recorder
+lib/          Sarvam integration, news feeds and voice recreation
+tests/        Mocked unit and HTTP route tests
+scripts/      Local startup and developer helpers
+docs/         Demo guides, validation and coordination records
+server.mjs    API routes and static server
+```
+
+Built with Codex, OpenCode and Antigravity for **Sarvam Campus '26 × IIT Bombay**. Development handoffs are documented in `docs/`.

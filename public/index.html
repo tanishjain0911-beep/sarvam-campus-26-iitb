@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Suno — Every word. Within reach.</title>
+  <title>Suno News Mirror — Your world. Your language.</title>
   <meta name="description" content="A calm, accessible text-to-speech reader for notices, study notes, and everyday messages across Indian languages.">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="news.css">
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -15,7 +16,7 @@
       <div class="brand-bar">
         <div class="wordmark-group">
           <span class="wordmark" aria-label="Suno">Suno</span>
-          <span class="wordmark-tag">Reader</span>
+          <span class="wordmark-tag">Personal audio</span>
         </div>
         <div class="toolbar" role="toolbar" aria-label="Appearance preferences">
           <button type="button" id="toggle-larger-text" class="toolbar-btn" aria-pressed="false" title="Toggle larger text size">
@@ -30,11 +31,11 @@
       </div>
 
       <div class="hero-copy">
-        <p class="eyebrow">A LITTLE LESS READING. A LITTLE MORE UNDERSTANDING.</p>
-        <h1 class="main-title">Every word. Within reach.</h1>
+        <p class="eyebrow">YOUR WORLD. YOUR LANGUAGE. A VOICE LIKE YOURS.</p>
+        <h1 class="main-title">The world. A little more familiar.</h1>
         <p class="hero-desc">
-          Paste a notice, study note, or message to hear it read aloud in your preferred language.
-          Designed for clear listening, without requiring an account.
+          Your own listening edition of current news. Choose what matters, hear it in your language,
+          and try an AI recreation of your own voice. Or turn any everyday text into audio.
         </p>
       </div>
 
@@ -240,5 +241,7 @@
   </footer>
 
   <script src="app.js" defer></script>
+  <script src="news.js" defer></script>
+  <script src="voice-recorder.js" defer></script>
 </body>
 </html>

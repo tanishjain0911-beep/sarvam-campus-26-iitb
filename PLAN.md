@@ -1,4 +1,11 @@
-# Suno - text you can listen to
+# Suno News Mirror - your world, your language, a voice like yours
+
+## Eight-minute News Mirror sprint
+The participant expanded the scope to topic-selected current news, local-language narration, and optional own-voice narration. Five internal agents split RSS, UI, voice backend, route tests and independent review; OpenCode produced demo documentation; Antigravity reviewed the integration. Headline feed refreshes every minute while visible with a server cache, not a guarantee publishers release new stories each minute. Do not claim market exclusivity.
+
+News flow: select interest -> sourced headlines/time -> select language -> translate and standard speech -> optionally record/upload a clean own-voice WAV, explicitly consent, and request cloned speech. Sarvam beta POST /voices/clone uses multipart ref_audio,text,language_code,output_audio_codec=wav; response audio_b64. Reference max15s/10MB, text max1000characters. Odia maps or-IN to od-IN for clone API. No clone is sent on selection. Similarity/accent/tone are not guaranteed. No saved voice profile is created.
+
+New endpoints: GET /api/news?topic=world|technology|science|business; POST /api/news-voice JSON {text,languageCode,referenceAudio,consent:true}. Fixed BBC RSS source allowlist, source links/timestamps, bounded fetches and sanitized failures. Voice route validates WAV duration/size and explicit consent. News fetch is live-tested; cloning requires the participant's actual recording for an honest live test.
 
 ## Problem and selection
 Chosen from Idea Library #18, Text-to-Speech Content Reader. A person who struggles to read a notice or unfamiliar language should be able to hear it without creating an account. This is a practical, broad accessibility use case with fewer dependencies than schemes, medicine, or document verification.
@@ -13,7 +20,7 @@ Result: original or translated text, playable speech, and a WAV download. Transl
 - Source and output selection for en-IN, hi-IN, bn-IN, gu-IN, kn-IN, ml-IN, mr-IN, or-IN, pa-IN, ta-IN, te-IN.
 - Three editable public sample snippets, character counter, explicit Generate button, clear/reset, native audio controls and playback rate; no autoplay.
 - Translated text stays available if speech fails. API errors never become fake audio or simulated success.
-- No login, no persistence of entered text/audio, no analytics, no upload/OCR, no summaries, no voice cloning, no medical or legal interpretation.
+- No login, no persistence of entered text/audio, no analytics, no OCR, no summaries, no medical or legal interpretation. Own-voice reference upload is optional in News Mirror only.
 
 ## Architecture and interface
 Dependency-free Node.js 22+ HTTP server, vanilla HTML/CSS/JS frontend. No npm installation required. Host binds 127.0.0.1 by default; PORT is configurable. Secrets stay server-side.

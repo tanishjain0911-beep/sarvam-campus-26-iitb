@@ -2,6 +2,8 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { getNews } from "./lib/news.mjs";
+import { cloneNewsVoice } from "./lib/voice-clone.mjs";
 import {
   translateText,
   synthesizeSpeech,
@@ -16,7 +18,10 @@ const STATIC_FILES = new Map([
   ["/", "index.html"],
   ["/index.html", "index.html"],
   ["/app.js", "app.js"],
-  ["/styles.css", "styles.css"]
+  ["/styles.css", "styles.css"],
+  ["/news.js", "news.js"],
+  ["/news.css", "news.css"],
+  ["/voice-recorder.js", "voice-recorder.js"]
 ]);
 
 const CONTENT_TYPES = {
@@ -32,7 +37,7 @@ function securityHeaders() {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "no-referrer",
-    "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+    "Permissions-Policy": "camera=(), microphone=(self), geolocation=()"
   };
 }
 
@@ -74,13 +79,13 @@ function errorStatusFor(err, defaultStatus = 502) {
   return defaultStatus;
 }
 
-async function readBody(req) {
+async function readBody(req, limit = MAX_BODY_BYTES) {
   const chunks = [];
   let total = 0;
   let tooLarge = false;
   for await (const chunk of req) {
     total += chunk.length;
-    if (total > MAX_BODY_BYTES) {
+    if (total > limit) {
       tooLarge = true;
       break;
     }
@@ -117,6 +122,36 @@ async function handleRequest(req, res, config) {
 
   if (req.method === "GET" && pathname === "/api/health") {
     sendJson(res, 200, { ok: true, configured: Boolean(apiKey) });
+    return;
+  }
+
+  if (req.method === "GET" && pathname === "/api/news") {
+    try {
+      sendJson(res, 200, await getNews({topic: url.searchParams.get('topic') || 'world', fetchImpl}));
+    } catch (error) {
+      const status = error.code === 'BAD_TOPIC' ? 400 : error.code === 'NEWS_TIMEOUT' ? 504 : 502;
+      sendJson(res, status, {error: status === 400 ? 'Choose a supported topic.' : 'News could not be refreshed. Please try again later.'});
+    }
+    return;
+  }
+
+  if (pathname === '/api/news-voice') {
+    if (req.method !== 'POST') { sendJson(res, 405, {error:'Method not allowed.'}); return; }
+    if (!isAllowedOrigin(req) || !isJsonContentType(req.headers['content-type'])) {
+      sendJson(res, 400, {error:'A same-origin JSON request is required.'}); return;
+    }
+    const body = await readBody(req, 14 * 1024 * 1024);
+    if (body.tooLarge) { sendJson(res, 400, {error:'Reference audio is too large.'}); return; }
+    let data;
+    try { data = JSON.parse(body.raw); } catch { sendJson(res, 400, {error:'Invalid JSON.'}); return; }
+    if (!data || typeof data !== 'object' || Array.isArray(data)) { sendJson(res, 400, {error:'Invalid request.'}); return; }
+    try {
+      const result = await cloneNewsVoice({apiKey,fetchImpl,text:data.text,languageCode:data.languageCode,referenceAudio:data.referenceAudio,consent:data.consent,timeoutMs:requestTimeoutMs});
+      sendJson(res, 200, result);
+    } catch(error) {
+      const status = [400,503,504].includes(error.status) ? error.status : 502;
+      sendJson(res, status, {error: status === 400 ? error.message : status === 503 ? 'Voice service is not configured.' : 'The beta voice service could not create audio. Standard narration is still available.'});
+    }
     return;
   }
 

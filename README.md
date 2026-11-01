@@ -1,4 +1,12 @@
-# Suno — Every word. Within reach.
+# Suno News Mirror — Your world. Your language.
+
+## New: your personal listening edition
+
+News Mirror is the default mode. Choose World, Technology, Science or Business; view up to five current BBC RSS headlines with original-source links and publication times. It checks for updates every minute while visible (source publication schedules determine freshness). Select a listening language and choose **Listen in my language** for translated narration.
+
+Optional **Read in my voice (beta)** uses a clean, single-speaker WAV recording between 1 and 15 seconds (10–15 recommended), max 10 MB, with an explicit consent checkbox. Use **Record my voice (12 seconds)** in the app or upload an existing WAV. Microphone access is requested only after your click; recording stays local until you consent and press the clone button. No voice profile is saved by Suno. Accent, expression and similarity can vary. Failed cloning preserves standard audio. Clone behavior is covered by mocks; a live own-voice test requires your actual recording.
+
+The original **Text Reader** remains available. See [45-second News Mirror demo](docs/NEWS-DEMO.md).
 A multilingual text-to-speech reader for Sarvam Campus '26 at IIT Bombay. Paste a short notice, study paragraph, or message, choose your listening language, and listen or download a WAV. No account is needed in the reader.
 
 ## Current status
@@ -32,7 +40,7 @@ Sarvam `/translate` uses `mayura:v1`; `/text-to-speech` uses `bulbul:v3`, voice 
 
 Generation needs internet and sends entered text to Sarvam. Suno does not save text/audio history on its server; Sarvam's own data policies apply. Each explicit request can use credits. There are no automatic retries. If speech fails after translation, the prepared text remains readable.
 
-Keys stay server-side. `.env`, audio, logs and worktrees are excluded from Git. Raw provider errors and credentials are not returned to browsers. No OCR, uploads, summaries, cloning, accounts or analytics are included.
+Keys stay server-side. `.env`, audio, logs and worktrees are excluded from Git. Raw provider errors and credentials are not returned to browsers. No OCR, article scraping, automatic summaries, accounts or analytics are included. Own-voice upload is an optional News Mirror beta feature.
 
 ## Verify
 

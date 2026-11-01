@@ -1,5 +1,16 @@
 # Suno validation record
 
+## News Mirror sprint validation
+
+- Five internal coding agents implemented/reviewed RSS, UI, cloning, HTTP routes and integration defects. OpenCode supplied demo notes; Antigravity supplied an independent review (suggestions were checked against actual code/API contracts rather than accepted blindly).
+- Final automated suite: **38 tests pass**, zero failures; source, routes, clone consent/WAV validation, malformed responses and timeouts are mocked.
+- Real BBC technology RSS returned five sourced headlines with publication dates and links. Cache and visible-view polling are 60seconds; publisher freshness is not guaranteed.
+- One real headline was sent through existing Sarvam formal translation + standard TTS. Browser displayed Hindi and decoded a **9.301333-second WAV**, readyState4, no media error. No cloned voice was presented as tested.
+- News language changes now clear prior text/audio and reset voice consent. Voice controls lock during requests; consent/file identity are rechecked before upload. Missing publication time no longer displays1970.
+- Optional12-second microphone-to-local-WAV recorder is implemented and syntax checked. No microphone permission was accepted by the agent and no participant recording was captured. Live microphone behavior and clone similarity need the participant's own recording/consent.
+- Beta clone endpoint uses verified Sarvam multipart audio_b64 contract and has seven mocked tests. No live own-voice call was made. Uploading/selecting/recording alone does not send a reference to Sarvam; the explicit clone button does.
+- No GitHub push or deployment occurred during this sprint. Local preview is on port3002 because another existing process occupied3000.
+
 ## Local automated checks
 
 - Node.js 24.15.0 on Windows; project requires Node 22+.

@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {handleSuno} from '../suno/handler.mjs';
+const url='https://suno.example';
+const req=(path,data,extra={})=>new Request(url+path,{method:'POST',headers:{'content-type':'application/json',origin:url,...extra},body:JSON.stringify(data)});
+test('hosted root serves Suno without placeholder content',async()=>{const r=await handleSuno(new Request(url));assert.equal(r.status,200);assert.match(await r.text(),/Suno News Mirror/);});
+test('hosted static asset allowlist blocks credential paths',async()=>{assert.equal((await handleSuno(new Request(url+'/.env'))).status,404);assert.equal((await handleSuno(new Request(url+'/news.js'))).status,200);});
+test('hosted health exposes only configuration flag',async()=>{const r=await handleSuno(new Request(url+'/api/health'),{SARVAM_API_KEY:'test-key'});assert.deepEqual(await r.json(),{ok:true,configured:true});});
+test('hosted read validates language and credentials before generation',async()=>{const r=await handleSuno(req('/api/read',{text:'Hello',sourceLanguage:'en-IN',targetLanguage:'en-IN'}));assert.equal(r.status,503);});
+test('hosted routes reject cross origin and clone without consent',async()=>{assert.equal((await handleSuno(req('/api/read',{}, {origin:'https://other.example'}))).status,400);assert.equal((await handleSuno(req('/api/news-voice',{}))).status,400);});
+test('hosted news rejects unsupported topic without provider request',async()=>{const r=await handleSuno(new Request(url+'/api/news?topic=bad'),{},()=>{throw Error('must not call');});assert.equal(r.status,400);});

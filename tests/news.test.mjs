@@ -47,3 +47,16 @@ test('upstream errors and body timeouts are bounded and honest', async () => {
   await assert.rejects(getNews({fetchImpl:async()=>({ok:true,text:async()=>new Promise(()=>{})}),timeoutMs:10}), error=>error.code==='NEWS_TIMEOUT');
   await assert.rejects(getNews({fetchImpl:async()=>new Promise(()=>{}),timeoutMs:10}), error=>error.code==='NEWS_TIMEOUT');
 });
+
+
+test('news fetch works with Worker redirect modes and rejects redirects without following', async () => {
+  const fetchImpl = async (url, init) => {
+    if (init.redirect === 'error') throw new TypeError('Unsupported redirect mode');
+    assert.equal(init.redirect, 'manual');
+    return {ok:true,text:async()=>xml};
+  };
+  assert.equal((await getNews({fetchImpl})).items.length, 1);
+  let calls=0;
+  await assert.rejects(getNews({fetchImpl:async(_url, init)=>{calls++;assert.equal(init.redirect,'manual');return {ok:false,status:302};}}), /temporarily unavailable/);
+  assert.equal(calls,1);
+});

@@ -2,13 +2,13 @@
 
 ### Your world. Your language. A voice like yours.
 
-**Hosted app:** [Open Suno News Mirror](https://suno-news-mirror-iitb.sacredjam128.chatgpt.site) — owner-private deployment; sign-in required.
+**Hosted app:** [Open Suno News Mirror](https://suno-news-mirror-iitb.sacredjam128.chatgpt.site) — public access; no sign-in required.
 
 **A multilingual listening companion built for Sarvam Campus '26 at IIT Bombay.**
 
 Suno turns current headlines and everyday text into spoken audio. Choose a topic, pick your listening language, and hear a personal news edition powered by Sarvam AI. Optional, consent-based voice recreation adds a familiar voice to the experience.
 
-[Quick start](#quick-start) · [Demo guide](docs/NEWS-DEMO.md) · [Validation](docs/VALIDATION.md) · [Project plan](PLAN.md)
+[Quick start](#quick-start) · [Demo guide](docs/NEWS-DEMO.md) · [Validation](docs/VALIDATION.md) · [Deployment & hosting source](docs/DEPLOYMENT.md) · [Project plan](PLAN.md)
 
 ---
 
@@ -102,9 +102,9 @@ node --check public/news.js
 node --check public/voice-recorder.js
 ```
 
-The automated suite contains **38 tests**, covering input validation, consent, WAV validation, feeds, routes, provider failures and timeouts. Tests use mocks and do not spend credits. A real news-to-Hindi standard narration was decoded in the browser; this does not establish own-voice similarity or quality across every language.
+The local Node application has **39 tests**, and the hosted adapter adds **20 tests** (59 total when run from the repository root). The tests cover input validation, consent, WAV validation, feeds, routes, provider failures and timeouts. Tests use mocks and do not spend credits. A real news-to-Hindi standard narration was decoded in the browser; this does not establish own-voice similarity or quality across every language.
 
-This hackathon prototype is also deployed to owner-private Sites hosting. The Sarvam key is configured as a hosted runtime secret. Public access would need rate limiting, abuse prevention and broader testing. See [deployment notes](docs/DEPLOYMENT.md).
+This hackathon prototype is deployed publicly on Sites hosting. The Sarvam key is configured as a hosted runtime secret. Production hardening still needs rate limiting, abuse prevention and broader testing. See [deployment notes](docs/DEPLOYMENT.md).
 
 ## Repository guide
 
@@ -113,6 +113,7 @@ public/       Interface, audio playback and local WAV recorder
 lib/          Sarvam integration, news feeds and voice recreation
 tests/        Mocked unit and HTTP route tests
 scripts/      Local startup and developer helpers
+hosting/      Complete deployed source snapshot, build scripts and lockfile
 docs/         Demo guides, validation and coordination records
 server.mjs    API routes and static server
 ```

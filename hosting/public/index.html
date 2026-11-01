@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suno News Mirror — Your world. Your language.</title>
+  <meta name="description" content="A calm, accessible text-to-speech reader for notices, study notes, and everyday messages across Indian languages.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="news.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-bar">
+        <div class="wordmark-group">
+          <span class="wordmark" aria-label="Suno">Suno</span>
+          <span class="wordmark-tag">Personal audio</span>
+        </div>
+        <div class="toolbar" role="toolbar" aria-label="Appearance preferences">
+          <button type="button" id="toggle-larger-text" class="toolbar-btn" aria-pressed="false" title="Toggle larger text size">
+            <span class="toolbar-icon" aria-hidden="true">A+</span>
+            <span>Larger text</span>
+          </button>
+          <button type="button" id="toggle-high-contrast" class="toolbar-btn" aria-pressed="false" title="Toggle high contrast display">
+            <span class="toolbar-icon" aria-hidden="true">&#9681;</span>
+            <span>High contrast</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-copy">
+        <p class="eyebrow">YOUR WORLD. YOUR LANGUAGE. A VOICE LIKE YOURS.</p>
+        <h1 class="main-title">The world. A little more familiar.</h1>
+        <p class="hero-desc">
+          Your own listening edition of current news. Choose what matters, hear it in your language,
+          and try an AI recreation of your own voice. Or turn any everyday text into audio.
+        </p>
+      </div>
+
+      <div id="health-banner" class="health-notice" role="status" hidden>
+        <div class="health-notice-content">
+          <span class="health-icon" aria-hidden="true">&#9888;</span>
+          <span id="health-notice-text">Notice: Server voice engine is currently unconfigured.</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="app-main">
+    <div class="main-container reader-grid">
+      <!-- Editor Card -->
+      <section class="card editor-card" aria-labelledby="editor-heading">
+        <div class="card-header">
+          <h2 id="editor-heading" class="card-title">What would you like to hear?</h2>
+          <p class="card-subtitle">Type or paste text below, or choose a common example to begin.</p>
+        </div>
+
+        <div class="sample-chips-group" role="group" aria-label="Sample text options">
+          <span class="chips-label">Try a sample:</span>
+          <div class="chips-list">
+            <button type="button" class="chip-btn" data-sample="notice">A daily notice</button>
+            <button type="button" class="chip-btn" data-sample="study">A study note</button>
+            <button type="button" class="chip-btn" data-sample="message">An everyday message</button>
+          </div>
+        </div>
+
+        <form id="reader-form" class="editor-form">
+          <div class="form-field">
+            <div class="field-label-row">
+              <label for="source-text" class="field-label">Text to read</label>
+              <span id="char-counter" class="char-counter" aria-live="polite">0 / 1000 characters</span>
+            </div>
+            <textarea
+              id="source-text"
+              name="text"
+              rows="7"
+              placeholder="Paste or write up to 1,000 characters here..."
+              aria-describedby="char-counter text-hint"
+              spellcheck="false"
+            ></textarea>
+            <span id="text-hint" class="field-hint">Maximum 1,000 characters. Supports Indian scripts and English.</span>
+          </div>
+
+          <div class="languages-grid">
+            <div class="form-field">
+              <label for="source-lang" class="field-label">Original language</label>
+              <select id="source-lang" name="sourceLanguage" class="lang-select">
+                <option value="en-IN" selected>English (India)</option>
+                <option value="hi-IN">हिन्दी — Hindi</option>
+                <option value="bn-IN">বাংলা — Bengali</option>
+                <option value="gu-IN">ગુજરાતી — Gujarati</option>
+                <option value="kn-IN">ಕನ್ನಡ — Kannada</option>
+                <option value="ml-IN">മലയാളം — Malayalam</option>
+                <option value="mr-IN">मराठी — Marathi</option>
+                <option value="or-IN">ଓଡ଼ିଆ — Odia</option>
+                <option value="pa-IN">ਪੰਜਾਬੀ — Punjabi</option>
+                <option value="ta-IN">தமிழ் — Tamil</option>
+                <option value="te-IN">తెలుగు — Telugu</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="target-lang" class="field-label">Listening language</label>
+              <select id="target-lang" name="targetLanguage" class="lang-select">
+                <option value="hi-IN" selected>हिन्दी — Hindi</option>
+                <option value="en-IN">English (India)</option>
+                <option value="bn-IN">বাংলা — Bengali</option>
+                <option value="gu-IN">ગુજરાતી — Gujarati</option>
+                <option value="kn-IN">ಕನ್ನಡ — Kannada</option>
+                <option value="ml-IN">മലയാളം — Malayalam</option>
+                <option value="mr-IN">मराठी — Marathi</option>
+                <option value="or-IN">ଓଡ଼ିଆ — Odia</option>
+                <option value="pa-IN">ਪੰਜਾਬੀ — Punjabi</option>
+                <option value="ta-IN">தமிழ் — Tamil</option>
+                <option value="te-IN">తెలుగు — Telugu</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="create-audio-btn" class="btn btn-primary" disabled>
+              <span class="btn-text">Create audio</span>
+            </button>
+            <button type="button" id="clear-btn" class="btn btn-secondary">
+              Clear
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Output Card -->
+      <section class="card output-card" aria-labelledby="output-heading">
+        <div class="card-header">
+          <h2 id="output-heading" class="card-title">Listening area</h2>
+          <p class="card-subtitle">Your translated text and spoken audio will appear here.</p>
+        </div>
+
+        <div id="live-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+        <!-- Alert messages (Error & Partial Error) -->
+        <div id="error-alert" class="alert-box alert-error" role="alert" hidden>
+          <div class="alert-icon" aria-hidden="true">&#9888;</div>
+          <div class="alert-body">
+            <strong class="alert-title">Unable to generate audio</strong>
+            <p id="error-message" class="alert-text"></p>
+          </div>
+        </div>
+
+        <div id="partial-alert" class="alert-box alert-warning" role="alert" hidden>
+          <div class="alert-icon" aria-hidden="true">&#9432;</div>
+          <div class="alert-body">
+            <strong class="alert-title">Spoken audio unavailable</strong>
+            <p id="partial-message" class="alert-text">
+              We translated your text, but voice generation could not be completed. You can read the prepared text below or try creating audio again.
+            </p>
+            <button type="button" id="retry-audio-btn" class="btn btn-secondary btn-sm">Try audio again</button>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="state-container empty-state">
+          <div class="empty-graphic" aria-hidden="true">
+            <svg class="illustration-svg" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="80" cy="80" r="70" class="graphic-bg" />
+              <!-- Open reading book -->
+              <path d="M46 102C56 97 68 97 80 102C92 97 104 97 114 102V62C104 57 92 57 80 62C68 57 56 57 46 62V102Z" class="graphic-book" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M80 62V102" class="graphic-spine" stroke-width="2.5" stroke-linecap="round"/>
+              <!-- Radiating acoustic listening waves -->
+              <path d="M36 74C32 78 32 86 36 90" class="graphic-wave" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M28 68C22 75 22 89 28 96" class="graphic-wave" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M124 74C128 78 128 86 124 90" class="graphic-wave" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M132 68C138 75 138 89 132 96" class="graphic-wave" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="state-title">Ready when you are</h3>
+          <p class="state-desc">Enter text in the editor and click "Create audio". Your spoken reading and translated words will be generated here.</p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="state-container loading-state" hidden aria-busy="true">
+          <div class="spinner" aria-hidden="true"></div>
+          <h3 class="state-title">Creating spoken audio...</h3>
+          <p class="state-desc">Contacting Sarvam AI speech engine to translate and synthesize clear speech. This may take a few moments.</p>
+        </div>
+
+        <!-- Output Result Panel (Text & Audio) -->
+        <div id="result-panel" class="result-panel" hidden>
+          <div class="result-meta-bar">
+            <span id="result-badge" class="badge">Original text</span>
+            <span id="result-lang-tag" class="lang-tag"></span>
+          </div>
+
+          <div class="text-output-section">
+            <div class="text-output-header">
+              <span class="text-output-title">Readable text</span>
+              <button type="button" id="copy-text-btn" class="btn-copy" aria-label="Copy text to clipboard">
+                <span id="copy-btn-text">Copy text</span>
+              </button>
+            </div>
+            <div id="output-text" class="output-text-content" tabindex="0" lang="hi-IN"></div>
+          </div>
+
+          <div id="audio-section" class="audio-section">
+            <label for="audio-player" class="field-label">Spoken recording</label>
+            <div class="audio-player-wrapper">
+              <audio id="audio-player" controls preload="metadata"></audio>
+            </div>
+
+            <div class="playback-speed-group" role="group" aria-label="Playback speed">
+              <span class="speed-label">Speed:</span>
+              <div class="speed-buttons">
+                <button type="button" class="speed-btn" data-speed="0.75" aria-pressed="false">0.75x</button>
+                <button type="button" class="speed-btn active" data-speed="1" aria-pressed="true">1x</button>
+                <button type="button" class="speed-btn" data-speed="1.25" aria-pressed="false">1.25x</button>
+                <button type="button" class="speed-btn" data-speed="1.5" aria-pressed="false">1.5x</button>
+              </div>
+            </div>
+
+            <div class="download-row">
+              <a id="download-btn" class="btn btn-download" download="suno-reading.wav" href="#">
+                <span class="download-icon" aria-hidden="true">&#10515;</span>
+                Download suno-reading.wav
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-container">
+      <p class="footer-tagline">Made for listening. Powered by Sarvam AI.</p>
+      <p class="footer-disclaimer">
+        Speech generation sends your text securely to Sarvam AI language models over the internet.
+        Suno does not save your text or audio history. Sarvam's own data policies apply.
+      </p>
+    </div>
+  </footer>
+
+  <script src="app.js" defer></script>
+  <script src="news.js" defer></script>
+  <script src="voice-recorder.js" defer></script>
+</body>
+</html>

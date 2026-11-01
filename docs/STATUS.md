@@ -1,14 +1,12 @@
-# Setup status
+# Current project status
 
-- Public GitHub repository created.
-- Sarvam API authentication was tested locally; the chat endpoint accepted a request but returned no reply text.
-- Kivi dictation was tested by the participant.
-- OpenCode and Antigravity each completed an isolated coding delegation test, independently verified by Codex.
-- Selected Suno, Idea Library #18: multilingual text reader.
-- Core Node API, accessible frontend, local launcher and 19 passing mocked tests implemented.
-- One live translation/audio path returned a playable WAV; formal-mode retest and download verification remain pending. See VALIDATION.md.
-- New project commits are local; GitHub push and optional deployment await approval.
-- News Mirror sprint added four-topic sourced RSS, visible-view minute refresh, local-language narration and optional own-voice recording/cloning.
-- Latest suite:38 passing tests. Real news→Hindi speech yielded9.3s decoded audio. Microphone capture and own-voice similarity remain participant-test steps.
+- [Public website](https://suno-news-mirror-iitb.sacredjam128.chatgpt.site/) is deployed; no sign-in required.
+- [GitHub repository](https://github.com/tanishjain0911-beep/sarvam-campus-26-iitb) contains local application source and the complete hosted source under `hosting/`.
+- News Mirror supports four sourced RSS topics, local-language narration and optional consented voice recreation.
+- Text Reader turns pasted text into standard-voice narration.
+- The hosted RSS redirect compatibility issue was fixed in version 2 and the public page loaded five Technology stories afterward.
+- 59 automated tests pass across the local application and hosted adapter/shared modules.
+- Own-voice playback/flow remains a known issue; voice similarity and all offered languages have not been comprehensively verified.
+- Sarvam credentials are stored outside source. No user voice samples are published.
 
-Use GitHub issues for scoped tasks and pull requests for review once implementation starts. Local coordination and handoffs are handled by Codex.
+See [deployment notes](DEPLOYMENT.md), [validation history](VALIDATION.md), and the root README for details.

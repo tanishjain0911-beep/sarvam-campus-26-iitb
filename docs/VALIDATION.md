@@ -53,3 +53,11 @@ GitHub push and deployment require participant approval. No secrets, audio or lo
 - Configured official feeds from The Indian Express, The Hindu and Hindustan Times alongside BBC.
 - Live local feed checks returned all three Indian publishers. In the public hosting environment, India headlines from The Hindu and Hindustan Times were displayed; The Indian Express was unavailable at that check. The page reports partial source availability and continues with healthy feeds.
 - Production version 3 deployed successfully. Automated suite: 67 tests pass, including publisher attribution, round-robin mixing, partial failure and timeout recovery.
+
+## Focused briefing update
+
+- Up to 30 candidates per publisher are considered for the five-story edition. Recency, publisher placement, public-interest headline signals and cross-publisher coverage contribute to ranking. Similar titles are grouped with additional original-source links.
+- Stories older than 72 hours and implausible future dates beyond one day are excluded. Unknown dates are retained with lower recency weight. Importance is heuristic and not guaranteed; the page explains selection and source-availability limits.
+- A prominent lead card, ranked supporting stories, selection labels, shorter excerpts and collapsed optional voice controls replace the undifferentiated feed. Duplicate hero text is hidden in news mode.
+- 81 tests passed, including seven ranking cases in each application copy. Desktop layout was visually inspected. A 390px phone viewport had no horizontal overflow; override was reset afterward.
+- Hosted version 4 deployed successfully; public browser showed five ranked stories, public-safety and policy labels, the updated layout and source-availability message. No additional paid speech calls or voice uploads were used for this update.

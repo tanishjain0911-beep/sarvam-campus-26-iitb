@@ -1,3 +1,4 @@
+import { rankNews } from './news-ranking.mjs';
 import { createHash } from 'node:crypto';
 
 const publisher = (name, hosts, url) => Object.freeze({name,hosts,url});
@@ -42,7 +43,7 @@ function field(xml, tag) {
   return plainText(xml.match(new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, 'i'))?.[1] ?? '');
 }
 
-export function parseNewsFeed(xml, source = NEWS_FEEDS.world[2]) {
+export function parseNewsFeed(xml, source = NEWS_FEEDS.world[2], limit = 5) {
   if (typeof xml !== 'string' || xml.length > 2_000_000 || !/<rss\b/i.test(xml)) {
     throw new NewsError('The news source returned an unreadable feed.');
   }
@@ -67,7 +68,7 @@ export function parseNewsFeed(xml, source = NEWS_FEEDS.world[2]) {
       source: source.name,
       publishedAt: Number.isFinite(date) ? new Date(date).toISOString() : null
     });
-    if (items.length === 5) break;
+    if (items.length === limit) break;
   }
   if (!items.length) throw new NewsError('The news source did not return usable headlines. Please try another topic.');
   return items;
@@ -79,7 +80,7 @@ async function fetchSource(source, fetchImpl, timeoutMs) {
   try{return await Promise.race([(async()=>{
     const response=await fetchImpl(source.url,{signal:controller.signal,headers:{Accept:'application/rss+xml, application/xml, text/xml'},redirect:'manual'});
     if(!response?.ok)throw new NewsError('The news source is temporarily unavailable. Please try again.');
-    return parseNewsFeed(await response.text(),source);
+    return parseNewsFeed(await response.text(),source,30);
   })(),deadline]);}catch(error){if(error instanceof NewsError)throw error;throw new NewsError('Could not reach the news source. Please try again.');}
   finally{clearTimeout(timer);}
 }
@@ -95,12 +96,7 @@ export async function getNews({topic='world',fetchImpl=fetch,now=Date.now,timeou
   const results=await Promise.allSettled(sources.map(source=>fetchSource(source,fetchImpl,timeoutMs)));
   const lists=results.filter(result=>result.status==='fulfilled').map(result=>result.value);
   if(!lists.length)throw results[0].reason;
-  // Round-robin preserves publisher diversity instead of letting a busy feed fill every slot.
-  const items=[],seen=new Set();
-  for(let index=0;index<5&&items.length<5;index++)for(const list of lists){
-    const item=list[index];if(!item||seen.has(item.url))continue;
-    seen.add(item.url);items.push(item);if(items.length===5)break;
-  }
-  const result={items,fetchedAt:new Date(timestamp).toISOString(),topic,sources:lists.map(list=>list[0].source),unavailableSources:results.flatMap((r,i)=>r.status==='rejected'?[sources[i].name]:[])};
+  const items=rankNews(lists,{now:timestamp});
+  const result={items,fetchedAt:new Date(timestamp).toISOString(),topic,ranking:"recency-public-interest-coverage",sources:lists.map(list=>list[0].source),unavailableSources:results.flatMap((r,i)=>r.status==='rejected'?[sources[i].name]:[])};
   cache.set(topic,{time:timestamp,result});return structuredClone(result);
 }

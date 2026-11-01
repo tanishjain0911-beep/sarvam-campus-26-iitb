@@ -29,12 +29,12 @@ test('feed limits returned stories to five and rejects malformed feeds', () => {
 test('fixed topic mapping, server caching and expiry', async () => {
   let count = 0;
   const fetchImpl = async (url)=>{ count++; assert.ok(NEWS_FEEDS.technology.some(source=>source.url===url)); return {ok:true,text:async()=>xml}; };
-  const first = await getNews({topic:'technology',fetchImpl,now:100000});
+  const first = await getNews({topic:'technology',fetchImpl,now:1793534400000});
   first.items[0].title = 'mutated';
-  const cached = await getNews({topic:'technology',fetchImpl,now:100001});
+  const cached = await getNews({topic:'technology',fetchImpl,now:1793534400001});
   assert.equal(count,3);
   assert.equal(cached.items[0].title,'Science & people');
-  await getNews({topic:'technology',fetchImpl,now:160001});
+  await getNews({topic:'technology',fetchImpl,now:1793534460001});
   assert.equal(count,6);
 });
 
@@ -65,7 +65,7 @@ const indianXml=(host, prefix='Story')=>'<rss><channel>'+Array.from({length:5},(
 test('India edition mixes three correctly attributed Indian publishers',async()=>{
  const result=await getNews({topic:'india',fetchImpl:async url=>{const source=NEWS_FEEDS.india.find(s=>s.url===url);return {ok:true,text:async()=>indianXml(source.hosts[0],source.name)};}});
  assert.equal(result.items.length,5);
- assert.deepEqual(result.items.slice(0,3).map(i=>i.source),['The Indian Express','The Hindu','Hindustan Times']);
+ assert.deepEqual(new Set(result.items.map(i=>i.source)),new Set(['The Indian Express','The Hindu','Hindustan Times']));
  assert.deepEqual(result.unavailableSources,[]);
 });
 test('a failed publisher does not suppress healthy publishers',async()=>{

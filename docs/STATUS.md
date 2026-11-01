@@ -5,7 +5,7 @@
 - News Mirror supports five sourced RSS topics, including an India edition with three Indian publishers, local-language narration and optional consented voice recreation.
 - Text Reader turns pasted text into standard-voice narration.
 - The hosted RSS redirect compatibility issue was fixed in version 2 and the public page loaded five Technology stories afterward.
-- 67 automated tests pass across the local application and hosted adapter/shared modules.
+- 81 automated tests pass across the local application and hosted adapter/shared modules.
 - Own-voice playback/flow remains a known issue; voice similarity and all offered languages have not been comprehensively verified.
 - Sarvam credentials are stored outside source. No user voice samples are published.
 

@@ -16,7 +16,7 @@ Suno turns current headlines and everyday text into spoken audio. Choose a topic
 
 | Mode | Input | Result |
 | --- | --- | --- |
-| **News Mirror** | Choose India, World, Technology, Science or Business | Up to five mixed-publisher RSS headlines, prioritizing Indian sources, with original links and publication times |
+| **News Mirror** | Choose India, World, Technology, Science or Business | Up to five ranked, deduplicated stories from Indian and global publishers, with original links and selection labels |
 | **Listen in my language** | Select a headline and listening language | Translated text and playable WAV narration |
 | **Own-voice beta** | Prepare a headline, supply your WAV and confirm consent | An AI voice recreation reading the prepared text |
 | **Text Reader** | Paste a notice, study paragraph or message | Readable text and standard-voice audio, with playback speed and download controls |
@@ -43,6 +43,12 @@ node --env-file=.env server.mjs
 Open **http://127.0.0.1:3000**. If `SARVAM_API_KEY` is already set in your environment, use `npm start`.
 
 **Windows launcher:** `Start-Suno.cmd` or `node scripts/start-local.mjs` reads an existing `~/.sarvam/credentials` file without printing the key. Set `PORT` to change the port; `HOST` defaults to loopback.
+
+## Focused briefing
+
+Suno considers up to 30 candidates per publisher and selects up to five recent stories using recency, publisher placement, public-interest topics and cross-publisher coverage. Similar headlines are grouped, with links to additional publishers. Stories older than 72 hours are excluded; unavailable publication times are preserved. A lead story, numbered cards and shorter excerpts make the edition easier to scan.
+
+The selection is automated and heuristic; it is not a definitive ranking of importance or a guarantee of complete coverage. Open **How are stories selected?** in the app for the explanation.
 
 ## Demo walkthrough
 
@@ -104,7 +110,7 @@ node --check public/news.js
 node --check public/voice-recorder.js
 ```
 
-The local Node application has **43 tests**, and the hosted adapter adds **24 tests** (67 total when run from the repository root). The tests cover input validation, consent, WAV validation, feeds, routes, provider failures and timeouts. Tests use mocks and do not spend credits. A real news-to-Hindi standard narration was decoded in the browser; this does not establish own-voice similarity or quality across every language.
+The local Node application has **50 tests**, and the hosted adapter adds **31 tests** (81 total when run from the repository root). The tests cover input validation, consent, WAV validation, feeds, routes, provider failures and timeouts. Tests use mocks and do not spend credits. A real news-to-Hindi standard narration was decoded in the browser; this does not establish own-voice similarity or quality across every language.
 
 This hackathon prototype is deployed publicly on Sites hosting. The Sarvam key is configured as a hosted runtime secret. Production hardening still needs rate limiting, abuse prevention and broader testing. See [deployment notes](docs/DEPLOYMENT.md).
 

@@ -17,15 +17,15 @@
   nav.append(readerButton,newsButton); header.querySelector('.brand-bar').after(nav);
   const section=el('main','news-mode'); section.id='news-mode'; section.hidden=true;
   section.innerHTML=`<div class="news-shell">
-    <div class="news-intro"><div><p class="news-eyebrow">YOUR WORLD. YOUR LANGUAGE. YOUR VOICE.</p><h2>Your personal listening edition.</h2><p>Choose what matters to you. Hear current headlines in your language, with an optional AI recreation of your own voice.</p></div><span class="news-edition-mark" aria-hidden="true">N / M</span></div>
+    <div class="news-intro"><div><p class="news-eyebrow">THE SUNO BRIEFING</p><h2>Less noise.<br>More perspective.</h2><p>A focused edition of major stories, led by Indian reporting. Read the essentials. Listen in your language.</p></div><span class="news-edition-mark" aria-hidden="true">5<span class="edition-small">STORIES.<br>A CLEARER DAY.</span></span></div>
     <div class="news-controls"><div><label for="news-topic">Your interests</label><select id="news-topic"><option value="india">India headlines</option><option value="world">World affairs</option><option value="technology">Technology</option><option value="science">Science & environment</option><option value="business">Business</option></select></div><div><label for="news-language">Your listening language</label><select id="news-language"></select></div><button type="button" id="news-refresh" class="btn btn-secondary">Refresh headlines</button></div>
     <div class="news-feed-meta"><span id="news-freshness">Headlines update from the source.</span><span class="news-poll-note">Checks every minute while this view is open</span></div>
-    <p id="news-status" class="news-status" role="status" aria-live="polite"></p>
+    <details class="briefing-method"><summary>How are stories selected?</summary><p>We prioritize recent reporting, public-interest topics and stories covered by multiple publishers. Similar headlines are grouped. This is an automated selection, not a definitive measure of importance. Source availability can affect the edition.</p></details><div class="briefing-feed-heading"><h3>The essential five</h3><span>YOUR TOPIC. A BROADER VIEW.</span></div><p id="news-status" class="news-status" role="status" aria-live="polite"></p>
     <div class="news-layout"><section class="news-feed" aria-label="Current news headlines"><div id="news-cards" class="news-cards"></div></section>
-    <aside class="news-listening card" aria-labelledby="news-listening-title"><p class="news-eyebrow">THE LISTENING ROOM</p><h3 id="news-listening-title">A familiar way to hear the world.</h3><p class="news-listen-hint">Choose a headline to create a short spoken reading. Your first reading uses Sarvam's standard voice.</p>
+    <aside class="news-listening card" aria-labelledby="news-listening-title"><p class="news-eyebrow">THE LISTENING ROOM</p><h3 id="news-listening-title">Your briefing, out loud.</h3><p class="news-listen-hint">Choose a story to hear the essentials in your preferred language. Press play when your reading is ready.</p>
       <div id="news-output" hidden><span id="news-audio-kind" class="badge">Standard voice</span><h4 id="news-output-title"></h4><p id="news-output-text" class="news-output-text"></p><audio id="news-audio" controls preload="metadata"></audio></div>
       <p id="news-audio-status" class="news-status" role="status" aria-live="polite"></p>
-      <div class="voice-mirror-box"><span class="voice-beta">OPTIONAL · BETA</span><h4>Make it sound more like you.</h4><p>Upload a clean, single-speaker WAV recording of yourself, ideally 10–15 seconds. Accent and expression matching can vary.</p><label for="news-voice-file" class="voice-file-label">Your voice sample (WAV, up to 10 MB)</label><input id="news-voice-file" type="file" accept=".wav,audio/wav,audio/x-wav"><label class="news-consent"><input type="checkbox" id="news-voice-consent"><span>This is my voice, and I consent to sending this recording to Sarvam to generate an AI recreation for this reading.</span></label><button type="button" id="news-clone" class="btn btn-primary" disabled>Read in my voice (beta)</button><p class="voice-private-note">Used only when you press the button. No sample is uploaded just by selecting it.</p></div>
+      <details class="voice-options"><summary>Try a voice like yours <span>Beta</span></summary><div class="voice-mirror-box"><span class="voice-beta">OPTIONAL · BETA</span><h4>Make it sound more like you.</h4><p>Upload a clean, single-speaker WAV recording of yourself, ideally 10–15 seconds. Accent and expression matching can vary.</p><label for="news-voice-file" class="voice-file-label">Your voice sample (WAV, up to 10 MB)</label><input id="news-voice-file" type="file" accept=".wav,audio/wav,audio/x-wav"><label class="news-consent"><input type="checkbox" id="news-voice-consent"><span>This is my voice, and I consent to sending this recording to Sarvam to generate an AI recreation for this reading.</span></label><button type="button" id="news-clone" class="btn btn-primary" disabled>Read in my voice (beta)</button><p class="voice-private-note">Used only when you press the button. No sample is uploaded just by selecting it.</p></div></details>
     </aside></div>
     <p class="news-transparency">A listening aid, not a news publisher. Headlines and excerpts come from linked sources; publication times belong to the publisher. Translations and voices are AI-generated. New stories depend on source updates.</p>
   </div>`;
@@ -55,17 +55,20 @@
       const data=await r.json();if(!r.ok)throw Error(data.error||'Headlines are unavailable right now.');
       if(version!==feedVersion)return;
       cards.replaceChildren();
-      for(const item of (data.items||[]).slice(0,5)) {
+      for(const [index,item] of (data.items||[]).slice(0,5).entries()) {
         let sourceUrl;try{sourceUrl=new URL(item.url);if(sourceUrl.protocol!=='https:')continue;}catch{continue;}
-        const card=el('article','news-story');
+        const card=el('article','news-story'+(index===0?' news-story-lead':''));
+        const topline=el('div','story-topline');topline.append(el('span','story-position',index===0?'THE LEAD STORY':String(index+1).padStart(2,'0')),el('span','story-reason',item.selectionReason||'Selected for your edition'));card.append(topline);
         const meta=el('div','news-story-meta');meta.append(el('span','news-source',item.source||'News source'),el('time','',dateLabel(item.publishedAt)));
-        const title=el('h3','',String(item.title||''));const description=el('p','news-excerpt',String(item.description||''));
+        const title=el('h3','',String(item.title||''));const description=el('p','news-excerpt',String(item.description||'').slice(0,220));
         const actions=el('div','news-story-actions');const listen=el('button','btn btn-primary','Listen in my language');listen.type='button';listen.disabled=busy;listen.addEventListener('click',()=>listenStory(item));
         const source=el('a','news-source-link','Read original ↗');source.href=sourceUrl.href;source.target='_blank';source.rel='noopener noreferrer';
-        actions.append(listen,source);card.append(meta,title,description,actions);cards.append(card);
+        actions.append(listen,source);card.append(meta,title);if(String(item.description||'').trim()!==String(item.title||'').trim())card.append(description);
+        if(item.coverage?.length>1){const coverage=el('div','story-coverage','Also reported by ');for(const report of item.coverage.filter(c=>c.source!==item.source)){try{const link=new URL(report.url);if(link.protocol!=='https:')continue;const a=el('a','',report.source);a.href=link.href;a.target='_blank';a.rel='noopener noreferrer';coverage.append(a);}catch{}}card.append(coverage);}
+        card.append(actions);cards.append(card);
       }
       freshness.textContent='Last checked '+dateLabel(data.fetchedAt||new Date().toISOString());
-      status.textContent=cards.children.length?'Choose a story to hear your edition.'+(data.unavailableSources?.length?' Some publishers are temporarily unavailable.':''):'No current headlines were returned. Try another topic.';
+      status.textContent=cards.children.length?cards.children.length+' stories selected · '+new Set((data.items||[]).map(i=>i.source)).size+' publishers'+(data.unavailableSources?.length?' · Some feeds unavailable':''):'No recent headlines are available for this topic. Try another edition.';
     } catch(error) {if(version===feedVersion&&error.name!=='AbortError')status.textContent=error.message||'Cannot load headlines. Please try again.';}finally{if(version===feedVersion){fetching=false;refresh.disabled=false;}}
   }
   async function listenStory(item) {
@@ -77,7 +80,7 @@
       const data=await r.json();
       if(typeof data.text==='string'&&data.text.trim()) {
         prepared={text:data.text,languageCode:target,title:String(item.title||'')};
-        $('#news-output-title').textContent=prepared.title;$('#news-output-text').textContent=prepared.text;$('#news-output-text').lang=target;output.hidden=false;
+        $('#news-output-title').textContent=prepared.title;$('#news-output-text').textContent=prepared.text;$('#news-output-text').lang=target;output.hidden=false;if(window.matchMedia('(max-width:760px)').matches)output.scrollIntoView({behavior:'smooth',block:'center'});
       }
       if(!r.ok)throw Error(data.error||'This reading could not be created.');
       setAudio(data.audioBase64,data.mimeType);$('#news-audio-kind').textContent='Standard voice · AI-generated';
@@ -98,7 +101,7 @@
     }catch(error){audioStatus.textContent=(error.message||'Voice generation failed.')+(audioUrl?' Your standard audio remains available.':' Your prepared text remains readable.');}finally{setBusy(false);}
   }
   function setMode(news) {
-    active=news;section.hidden=!news;reader.hidden=news;readerButton.setAttribute('aria-pressed',String(!news));newsButton.setAttribute('aria-pressed',String(news));
+    active=news;section.hidden=!news;reader.hidden=news;const hero=header.querySelector('.hero-copy');if(hero)hero.hidden=news;readerButton.setAttribute('aria-pressed',String(!news));newsButton.setAttribute('aria-pressed',String(news));
     if(!news){audio.pause();feedVersion++;fetching=false;refresh.disabled=false;if(feedController)feedController.abort();}else fetchNews();
   }
   readerButton.addEventListener('click',()=>setMode(false));newsButton.addEventListener('click',()=>setMode(true));

@@ -10,7 +10,7 @@
 
 - Access: **public**. Anyone with the website link can visit without signing in.
 - Hosting: Sites / Cloudflare Workers, retaining the supplied Vinext build integration.
-- Current hosted source revision: `2859ccde7bd953c8e23124ac4111be3822d02de6` in the Site source repository (version 3).
+- Current hosted source revision: `bbee1018c67854b0d6c5cfcd660115a4799c32af` in the Site source repository (version 4).
 - Runtime secret: `SARVAM_API_KEY` is configured in the hosting secret store. It is not in GitHub or the browser bundle.
 - `hosting/` includes the complete tracked hosting source, build scripts, lockfile, manifest, interface assets and adapter tests. The root project remains a dependency-free Node application for local use.
 
@@ -34,8 +34,14 @@ Keep the root and hosted shared modules consistent. For future publication use t
 
 ## Verification and limits
 
-- Root `npm test`: **67 tests pass** (43 local-app tests plus 24 hosting/shared-module tests).
-- Production build passed; hosting confirmed version 3 deployment succeeded.
+- Root `npm test`: **81 tests pass** (50 local-app tests plus 31 hosting/shared-module tests).
+- Production build passed; hosting confirmed version 4 deployment succeeded.
 - Public news loading was verified in the browser after the fix.
 - A full hosted speech/voice-recreation flow has not been verified. The previously reported own-voice playback/flow issue remains open.
 - Production hardening still needs rate limiting, abuse prevention and broader language/device checks.
+
+## Focused briefing (version 4)
+
+The public interface now ranks up to five stories and highlights the lead. Ranking uses recent publication, publisher placement, public-interest headline signals and cross-publisher coverage, with similar-headline grouping and links to additional reporting. This automated heuristic does not guarantee the objectively most important or complete news selection. Details are shown in the app under **How are stories selected?**.
+
+The public ranked edition and layout were browser-checked after deployment. A 390px preview had no horizontal overflow.

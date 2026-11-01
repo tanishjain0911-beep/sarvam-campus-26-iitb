@@ -2,7 +2,7 @@
 
 [Open the public website](https://suno-news-mirror-iitb.sacredjam128.chatgpt.site/) · [Deployment guide](../docs/DEPLOYMENT.md) · [Main project README](../README.md)
 
-This directory contains the complete source snapshot used for the current Suno deployment, including its locked framework dependencies and build integration. Hosting-source revision: `2859ccde7bd953c8e23124ac4111be3822d02de6` in the Site source repository. This GitHub copy has a clearer README; executable files match the deployed source.
+This directory contains the complete source snapshot used for the current Suno deployment, including its locked framework dependencies and build integration. Hosting-source revision: `bbee1018c67854b0d6c5cfcd660115a4799c32af` in the Site source repository. This GitHub copy has a clearer README; executable files match the deployed source.
 
 ## Build locally
 
@@ -23,7 +23,7 @@ To preview a production build, `npm start` uses local Wrangler. Configure `SARVA
 - `suno/assets.mjs`: embedded interface assets used by the deployed Worker.
 - `suno/news.mjs`, `suno/sarvam.mjs`, `suno/voice-clone.mjs`: hosted news and Sarvam modules.
 - `public/`: browser source assets, also used during the framework build.
-- `tests/`: 24 hosted-adapter/shared-module tests.
+- `tests/`: 31 hosted-adapter/shared-module tests.
 - `vite.config.ts`, `scripts/`, `worker/`, `.openai/hosting.json`: build and deployment integration.
 - `app/`, `components/`, remaining framework files: supplied scaffold retained in the deployed build; Suno's interface is served by the Worker adapter.
 

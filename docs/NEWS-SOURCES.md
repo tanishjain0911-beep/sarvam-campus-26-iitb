@@ -10,7 +10,7 @@ Suno combines public RSS headlines with clear publisher labels and original arti
 | Science & environment | The Indian Express, The Hindu, BBC News |
 | Business | The Indian Express, The Hindu, BBC News |
 
-India is the default for new visitors. Existing visitors retain their selected topic. Each response contains up to five stories, interleaved across available publishers rather than filled by one busy feed. Feed order is retained within each publisher; the result is not a ranking of importance or a guarantee of freshness.
+India is the default for new visitors. Existing visitors retain their selected topic. Each response contains up to five ranked stories selected from up to 30 candidates per publisher. Recency, publisher placement, public-interest topic signals and cross-publisher coverage contribute to selection. Similar headlines are grouped; additional publisher links are retained. Stories older than 72 hours are excluded. Unknown dates are preserved. Publisher and topic diversity are preferred among comparably ranked stories. This heuristic does not establish objective importance, accuracy or complete coverage.
 
 Feeds are requested concurrently with bounded timeouts. A failed or slow publisher does not suppress healthy feeds. The page reports when some publishers are unavailable. Feeds are cached for 60 seconds and checked every minute while the news view is visible. Publisher schedules determine when new stories appear.
 
